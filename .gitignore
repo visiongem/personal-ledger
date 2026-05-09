@@ -1,0 +1,28 @@
+# Gradle
+.gradle/
+build/
+local.properties
+captures/
+
+# Android
+*.iml
+.idea/
+*.apk
+*.aab
+*.dex
+*.class
+
+# Kotlin / Java
+*.hprof
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Brainstorming companion (临时文件)
+.superpowers/
+
+# Keys / secrets
+keystore.properties
+*.jks
+*.keystore
