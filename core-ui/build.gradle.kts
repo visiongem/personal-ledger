@@ -8,6 +8,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":core-extensions"))
+
     implementation(libs.android.core.ktx)
     implementation(libs.android.lifecycle.runtime.compose)
     implementation(libs.coil.compose)
