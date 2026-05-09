@@ -33,11 +33,11 @@ build-logic           # Gradle convention plugins
 ```bash
 ./gradlew assembleDebug         # 构建 debug APK
 ./gradlew :app:installDebug     # 装到设备
-./gradlew test                  # 单元测试（JUnit 5）
-./gradlew connectedAndroidTest  # 仪器测试，含 Hilt 烟雾（需模拟器/真机；JUnit 4）
+./gradlew test                  # 单元测试
+./gradlew connectedAndroidTest  # 仪器测试，含 Hilt 烟雾（需模拟器/真机）
 ```
 
-> **测试框架边界**：`test/` 源集（JVM 单测）使用 JUnit 5；`androidTest/` 源集（仪器测试）因 Hilt/Espresso 依赖 JUnit 4 Rule API，统一使用 JUnit 4。
+> **测试框架现状**（v0.1）：`test/` 与 `androidTest/` 源集当前均使用 JUnit 4（`junit:4.13.2`）。Spec §2.3 规划 JVM 单测迁移到 JUnit 5（`junit-jupiter` 已在 Version Catalog 预声明），将在 Plan 02 启动时连同 `useJUnitPlatform()` 配置一并落地。`androidTest/` 因 `HiltAndroidRule` / Espresso 依赖 JUnit 4 Rule API，永久保留 JUnit 4。
 
 ## 开发文档
 
