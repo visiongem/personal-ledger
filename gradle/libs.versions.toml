@@ -1,4 +1,10 @@
 [versions]
+# Last dep audit: 2026-05-09 (Plan 02 entry, after Plan 01 final review)
+# Reviewed targets:
+#   - Compose BOM 2024.10.01 → keep (latest stable BOM as of audit date; Plan 04 will revisit when wiring core-ui Theme)
+#   - Lifecycle 2.8.7 → keep (compatible with AGP 8.9.2)
+#   - Navigation 3 1.0.0-alpha02 → keep (no newer alpha available; Plan 04 will evaluate hoisting nav3 to core-ui to bound alpha risk)
+#   - All other deps have no urgent upgrade reason
 agp = "8.9.2"
 kotlin = "2.0.21"
 ksp = "2.0.21-1.0.25"
@@ -6,7 +12,6 @@ coreKtx = "1.13.1"
 androidxTestRunner = "1.6.2"
 androidxTestRules = "1.6.1"
 androidxTestExtJunit = "1.2.1"
-appcompat = "1.7.0"
 activity = "1.9.3"
 lifecycle = "2.8.7"
 composeBom = "2024.10.01"
@@ -29,7 +34,6 @@ truth = "1.4.4"
 
 [libraries]
 android-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
-android-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 android-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 android-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
 android-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
@@ -68,7 +72,6 @@ coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 
-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 
 # Test
