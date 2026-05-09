@@ -18,7 +18,8 @@ class AndroidComposeConventionPlugin : Plugin<Project> {
     private fun Project.configureCompose() {
         val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-        extensions.configure<CommonExtension<*, *, *, *, *, *>> {
+        @Suppress("UNCHECKED_CAST")
+        (extensions.getByName("android") as CommonExtension<*, *, *, *, *, *>).apply {
             buildFeatures.compose = true
         }
 
