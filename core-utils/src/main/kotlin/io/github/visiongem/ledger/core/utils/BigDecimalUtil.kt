@@ -3,7 +3,7 @@ package io.github.visiongem.ledger.core.utils
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-private fun String?.toSafeBigDecimal(): BigDecimal {
+internal fun String?.toSafeBigDecimal(): BigDecimal {
     if (this.isNullOrBlank()) return BigDecimal.ZERO
     return try {
         BigDecimal(this)
