@@ -14,6 +14,11 @@ android {
 }
 
 dependencies {
+    implementation(project(":feature-record"))
+    implementation(project(":feature-account"))
+    implementation(project(":feature-stats"))
+    implementation(project(":feature-settings"))
+
     implementation(libs.android.core.ktx)
     implementation(libs.android.activity.compose)
     implementation(libs.android.lifecycle.runtime.ktx)
