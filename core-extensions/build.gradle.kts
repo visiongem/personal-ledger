@@ -11,5 +11,6 @@ dependencies {
     implementation(libs.android.core.ktx)
     implementation(libs.android.lifecycle.runtime.compose)
     implementation(libs.coil.compose)
-    testImplementation(libs.junit)
+    testImplementation(libs.bundles.junit5)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 }

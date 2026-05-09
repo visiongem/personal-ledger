@@ -78,6 +78,7 @@ androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "a
 junit = { module = "junit:junit", version.ref = "junit" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit5" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
@@ -88,6 +89,9 @@ hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", vers
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 ksp-gradle-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+
+[bundles]
+junit5 = ["junit-jupiter-api", "junit-jupiter-params"]
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

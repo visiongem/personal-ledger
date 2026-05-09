@@ -8,6 +8,7 @@ android {
 
 dependencies {
     implementation(libs.android.core.ktx)
-    testImplementation(libs.junit)
+    testImplementation(libs.bundles.junit5)
+    testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.truth)
 }

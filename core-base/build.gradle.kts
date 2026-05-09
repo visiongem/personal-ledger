@@ -12,7 +12,8 @@ dependencies {
     implementation(libs.android.lifecycle.viewmodel.compose)
     implementation(libs.coroutines.android)
 
-    testImplementation(libs.junit)
+    testImplementation(libs.bundles.junit5)
+    testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
     testImplementation(libs.coroutines.test)
