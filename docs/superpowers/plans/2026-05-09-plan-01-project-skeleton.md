@@ -2,11 +2,17 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **修订记录（2026-05-09 实施过程中）**
+> - **AGP 实际值 8.9.2**（初稿写 8.7.2）：Task 6 接入 `androidx.navigation3:navigation3-ui:1.0.0-alpha02` 时发现其传递依赖 `androidx.activity:activity-compose:1.12.0-alpha01` 强制要求 AGP ≥ 8.9.1，触发版本升级，commit `2060a22`
+> - **Gradle wrapper 实际值 8.11.1**（初稿写 8.10）：AGP 8.9.2 反过来要求 Gradle 8.11.1+，连带升级
+> - 下文 Task 1 / Task 2 中出现的 8.10 / 8.7.2 数值是初稿原文（保留以呈现决策过程），**实际项目以 git 历史为准**：从 `2060a22` 起即升级到 8.9.2 / 8.11.1
+> - 后续 Plan 02 入口需做依赖体检：评估 Compose BOM、lifecycle 是否同步升级；nav3 alpha 是否抽到 core-ui 收敛风险面（详见 T6 code review M2/M5）
+
 **Goal:** 搭起 Personal Ledger 多模块 Gradle 工程骨架，跑通 Hilt + Compose 的最小空壳 App，所有 module 占位齐备，可执行 `./gradlew assembleDebug` 成功并启动到 "Hello, Ledger" Compose 屏幕。
 
 **Architecture:** Gradle 8.x 多模块 + Version Catalog 统一版本 + build-logic convention plugins 统一 module 配置 + Hilt 依赖注入 + 纯 Compose UI（无 ViewBinding）。本 Plan 不写业务代码，只产出可运行的脚手架。
 
-**Tech Stack:** Gradle 8.10、AGP 8.7、Kotlin 2.0、Compose BOM 2024.10、Hilt 2.52、KSP 2.0.21-1.0.25、JUnit5、min SDK 26 / target SDK 36
+**Tech Stack:** Gradle 8.10（实际 8.11.1）、AGP 8.7（实际 8.9.2）、Kotlin 2.0、Compose BOM 2024.10、Hilt 2.52、KSP 2.0.21-1.0.25、JUnit5、min SDK 26 / target SDK 36
 
 **Spec 参考：** `docs/specs/2026-05-09-personal-ledger-design.md` §2（技术栈与模块结构）
 
