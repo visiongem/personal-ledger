@@ -1055,11 +1055,11 @@ git commit -m "build: scaffold 4 feature-* modules and wire to app"
 
 - [ ] **Step 1: 加测试依赖到 `app/build.gradle.kts`**
 
+> Note: `hilt-android-testing` and `kspAndroidTest(hilt.compiler)` are auto-provided by `ledger.android.hilt` convention plugin (added in T3 fix).
+
 在 `dependencies {}` 块追加：
 
 ```kotlin
-androidTestImplementation(libs.hilt.android.testing)
-kspAndroidTest(libs.hilt.compiler)
 androidTestImplementation("androidx.test:runner:1.6.2")
 androidTestImplementation("androidx.test:rules:1.6.1")
 androidTestImplementation("androidx.test.ext:junit:1.2.1")

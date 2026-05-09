@@ -10,9 +10,15 @@ class AndroidComposeConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
+        // Wait until either application or library plugin is applied, then configure compose
+        pluginManager.withPlugin("com.android.application") { configureCompose() }
+        pluginManager.withPlugin("com.android.library") { configureCompose() }
+    }
+
+    private fun Project.configureCompose() {
         val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-        extensions.configure<CommonExtension<*, *, *, *, *, *>>("android") {
+        extensions.configure<CommonExtension<*, *, *, *, *, *>> {
             buildFeatures.compose = true
         }
 

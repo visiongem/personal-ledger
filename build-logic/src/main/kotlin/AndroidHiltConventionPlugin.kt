@@ -14,6 +14,9 @@ class AndroidHiltConventionPlugin : Plugin<Project> {
         dependencies {
             "implementation"(libs.findLibrary("hilt.android").get())
             "ksp"(libs.findLibrary("hilt.compiler").get())
+            // Hilt instrumentation test support — modules that enable androidTest get it for free
+            "kspAndroidTest"(libs.findLibrary("hilt.compiler").get())
+            "androidTestImplementation"(libs.findLibrary("hilt.android.testing").get())
         }
     }
 }
