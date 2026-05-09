@@ -37,7 +37,7 @@ personal-ledger/
 │   ├── proguard-rules.pro                   # T4
 │   └── src/main/
 │       ├── AndroidManifest.xml              # T4
-│       ├── kotlin/io/github/nia/ledger/
+│       ├── kotlin/io/github/visiongem/ledger/
 │       │   ├── LedgerApplication.kt         # T4
 │       │   └── MainActivity.kt              # T4
 │       └── res/
@@ -54,11 +54,11 @@ personal-ledger/
 ├── feature-account/build.gradle.kts         # T6
 ├── feature-stats/build.gradle.kts           # T6
 ├── feature-settings/build.gradle.kts        # T6
-├── app/src/test/kotlin/io/github/nia/ledger/HiltSmokeTest.kt   # T7
+├── app/src/test/kotlin/io/github/visiongem/ledger/HiltSmokeTest.kt   # T7
 └── README.md                                # T8
 ```
 
-> **包名占位**：本 Plan 全程使用 `io.github.nia.ledger`。GitHub username 确认后用 IDE 全局 refactor 替换 `io.github.nia` → `io.github.<username>`，5 分钟可完成。
+> **包名**：`io.github.visiongem.ledger`（GitHub username `visiongem` 已确认）
 
 ---
 
@@ -593,8 +593,8 @@ git commit -m "build: add convention plugins for Android app/library/compose/hil
 - Create: `app/build.gradle.kts`
 - Create: `app/proguard-rules.pro`
 - Create: `app/src/main/AndroidManifest.xml`
-- Create: `app/src/main/kotlin/io/github/nia/ledger/LedgerApplication.kt`
-- Create: `app/src/main/kotlin/io/github/nia/ledger/MainActivity.kt`
+- Create: `app/src/main/kotlin/io/github/visiongem/ledger/LedgerApplication.kt`
+- Create: `app/src/main/kotlin/io/github/visiongem/ledger/MainActivity.kt`
 - Create: `app/src/main/res/values/strings.xml`
 - Create: `app/src/main/res/values/themes.xml`
 
@@ -608,9 +608,9 @@ plugins {
 }
 
 android {
-    namespace = "io.github.nia.ledger"
+    namespace = "io.github.visiongem.ledger"
     defaultConfig {
-        applicationId = "io.github.nia.ledger"
+        applicationId = "io.github.visiongem.ledger"
         versionCode = 1
         versionName = "0.1.0"
     }
@@ -705,10 +705,10 @@ Create `app/src/main/res/xml/data_extraction_rules.xml`:
 </resources>
 ```
 
-- [ ] **Step 7: `app/src/main/kotlin/io/github/nia/ledger/LedgerApplication.kt`**
+- [ ] **Step 7: `app/src/main/kotlin/io/github/visiongem/ledger/LedgerApplication.kt`**
 
 ```kotlin
-package io.github.nia.ledger
+package io.github.visiongem.ledger
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
@@ -717,10 +717,10 @@ import dagger.hilt.android.HiltAndroidApp
 class LedgerApplication : Application()
 ```
 
-- [ ] **Step 8: `app/src/main/kotlin/io/github/nia/ledger/MainActivity.kt`**
+- [ ] **Step 8: `app/src/main/kotlin/io/github/visiongem/ledger/MainActivity.kt`**
 
 ```kotlin
-package io.github.nia.ledger
+package io.github.visiongem.ledger
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -803,7 +803,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.nia.ledger.core.utils"
+    namespace = "io.github.visiongem.ledger.core.utils"
 }
 
 dependencies {
@@ -822,7 +822,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.nia.ledger.core.extensions"
+    namespace = "io.github.visiongem.ledger.core.extensions"
 }
 
 dependencies {
@@ -842,7 +842,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.nia.ledger.core.base"
+    namespace = "io.github.visiongem.ledger.core.base"
 }
 
 dependencies {
@@ -868,7 +868,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.nia.ledger.core.network"
+    namespace = "io.github.visiongem.ledger.core.network"
 }
 
 dependencies {
@@ -896,7 +896,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.nia.ledger.core.ui"
+    namespace = "io.github.visiongem.ledger.core.ui"
 }
 
 dependencies {
@@ -917,7 +917,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.nia.ledger.core.data"
+    namespace = "io.github.visiongem.ledger.core.data"
 }
 
 dependencies {
@@ -941,10 +941,10 @@ dependencies {
 
 - [ ] **Step 7: 创建 placeholder 源文件（避免 empty module 警告）**
 
-For each `core-*` module, create `src/main/kotlin/io/github/nia/ledger/<package>/Placeholder.kt`:
+For each `core-*` module, create `src/main/kotlin/io/github/visiongem/ledger/<package>/Placeholder.kt`:
 
 ```kotlin
-package io.github.nia.ledger.core.utils
+package io.github.visiongem.ledger.core.utils
 
 internal object Placeholder
 ```
@@ -985,7 +985,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.nia.ledger.feature.<NAME>"  // 替换 <NAME>
+    namespace = "io.github.visiongem.ledger.feature.<NAME>"  // 替换 <NAME>
 }
 
 dependencies {
@@ -1012,9 +1012,9 @@ dependencies {
 
 - [ ] **Step 2: 4 个 feature 各创建 Placeholder.kt**
 
-`feature-record/src/main/kotlin/io/github/nia/ledger/feature/record/Placeholder.kt`:
+`feature-record/src/main/kotlin/io/github/visiongem/ledger/feature/record/Placeholder.kt`:
 ```kotlin
-package io.github.nia.ledger.feature.record
+package io.github.visiongem.ledger.feature.record
 internal object Placeholder
 ```
 
@@ -1048,7 +1048,7 @@ git commit -m "build: scaffold 4 feature-* modules and wire to app"
 ## Task 7：Hilt 烟雾测试
 
 **Files:**
-- Create: `app/src/androidTest/kotlin/io/github/nia/ledger/HiltSmokeTest.kt`
+- Create: `app/src/androidTest/kotlin/io/github/visiongem/ledger/HiltSmokeTest.kt`
 - Modify: `app/build.gradle.kts`（加测试依赖）
 
 > 烟雾测试目的：用真实 Hilt 容器启动 Application，确认依赖图能构建（防止上线后崩溃在 Application.onCreate）。
@@ -1068,13 +1068,13 @@ androidTestImplementation("androidx.test.ext:junit:1.2.1")
 修改 `defaultConfig` 中的 testInstrumentationRunner：
 
 ```kotlin
-testInstrumentationRunner = "io.github.nia.ledger.HiltTestRunner"
+testInstrumentationRunner = "io.github.visiongem.ledger.HiltTestRunner"
 ```
 
-- [ ] **Step 2: 创建 `app/src/androidTest/kotlin/io/github/nia/ledger/HiltTestRunner.kt`**
+- [ ] **Step 2: 创建 `app/src/androidTest/kotlin/io/github/visiongem/ledger/HiltTestRunner.kt`**
 
 ```kotlin
-package io.github.nia.ledger
+package io.github.visiongem.ledger
 
 import android.app.Application
 import android.content.Context
@@ -1090,10 +1090,10 @@ class HiltTestRunner : AndroidJUnitRunner() {
 
 - [ ] **Step 3: 写 failing test**
 
-`app/src/androidTest/kotlin/io/github/nia/ledger/HiltSmokeTest.kt`:
+`app/src/androidTest/kotlin/io/github/visiongem/ledger/HiltSmokeTest.kt`:
 
 ```kotlin
-package io.github.nia.ledger
+package io.github.visiongem.ledger
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
