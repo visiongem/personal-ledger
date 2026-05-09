@@ -18,6 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Must run BEFORE super.onCreate() to take effect before Window attach. See androidx.activity docs.
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
