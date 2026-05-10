@@ -14,8 +14,8 @@ import retrofit2.Retrofit
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    // Placeholder until v1 wires a real backend; Frankfurter (raw, non-envelope) will be
-    // provided via a separate Retrofit qualifier in a later plan.
+    // Placeholder until v1 wires a real backend. Other Retrofit instances (e.g. Frankfurter
+    // raw API) live in their consuming module's @Module behind their own @Qualifier.
     private const val DEFAULT_BASE_URL = "https://example.invalid/"
 
     // TODO: switch to BuildConfig.DEBUG once the app module surfaces buildConfig fields.
@@ -32,7 +32,8 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(
+    @LedgerRetrofit
+    fun provideLedgerRetrofit(
         client: OkHttpClient,
         moshi: Moshi,
     ): Retrofit = NetRequestManager.buildRetrofit(
