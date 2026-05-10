@@ -16,6 +16,7 @@ android {
 
 dependencies {
     implementation(project(":core-ui"))
+    implementation(project(":core-data"))
     implementation(project(":feature-record"))
     implementation(project(":feature-account"))
     implementation(project(":feature-stats"))
