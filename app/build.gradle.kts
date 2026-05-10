@@ -15,6 +15,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core-ui"))
     implementation(project(":feature-record"))
     implementation(project(":feature-account"))
     implementation(project(":feature-stats"))
@@ -25,6 +26,8 @@ dependencies {
     implementation(libs.android.lifecycle.runtime.ktx)
     implementation(libs.android.lifecycle.runtime.compose)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.navigation3.runtime)
+    implementation(libs.navigation3.ui)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

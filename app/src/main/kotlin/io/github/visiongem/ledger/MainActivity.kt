@@ -4,16 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.ui.NavDisplay
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.visiongem.ledger.core.ui.theme.LedgerTheme
+import io.github.visiongem.ledger.feature.account.edit.AccountEditScreen
+import io.github.visiongem.ledger.feature.account.list.AccountListScreen
+import io.github.visiongem.ledger.feature.account.nav.AccountEditRoute
+import io.github.visiongem.ledger.feature.account.nav.AccountListRoute
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -22,27 +22,34 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
-                HelloScreen()
+            LedgerTheme {
+                val backStack = remember { mutableStateListOf<Any>(AccountListRoute) }
+                NavDisplay(
+                    backStack = backStack,
+                    onBack = { backStack.removeLastOrNull() },
+                    entryProvider = { key ->
+                        when (key) {
+                            is AccountListRoute -> NavEntry(key) {
+                                AccountListScreen(
+                                    onAccountClick = { id ->
+                                        backStack.add(AccountEditRoute(id))
+                                    },
+                                    onAddClick = {
+                                        backStack.add(AccountEditRoute(null))
+                                    },
+                                )
+                            }
+                            is AccountEditRoute -> NavEntry(key) {
+                                AccountEditScreen(
+                                    accountId = key.accountId,
+                                    onDone = { backStack.removeLastOrNull() },
+                                )
+                            }
+                            else -> error("Unknown route: $key")
+                        }
+                    },
+                )
             }
         }
     }
-}
-
-@Composable
-private fun HelloScreen() {
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                text = "Hello, Ledger",
-                style = MaterialTheme.typography.headlineMedium
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun HelloScreenPreview() {
-    MaterialTheme { HelloScreen() }
 }
