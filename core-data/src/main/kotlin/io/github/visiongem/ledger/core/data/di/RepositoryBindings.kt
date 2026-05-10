@@ -10,6 +10,8 @@ import io.github.visiongem.ledger.core.data.repo.BudgetRepository
 import io.github.visiongem.ledger.core.data.repo.BudgetRepositoryImpl
 import io.github.visiongem.ledger.core.data.repo.CategoryRepository
 import io.github.visiongem.ledger.core.data.repo.CategoryRepositoryImpl
+import io.github.visiongem.ledger.core.data.local.prefs.UserPreferencesRepository
+import io.github.visiongem.ledger.core.data.local.prefs.UserPreferencesRepositoryImpl
 import io.github.visiongem.ledger.core.data.repo.ExchangeRateRepository
 import io.github.visiongem.ledger.core.data.repo.ExchangeRateRepositoryImpl
 import io.github.visiongem.ledger.core.data.repo.RecordRepository
@@ -41,4 +43,10 @@ abstract class RepositoryBindings {
     abstract fun bindExchangeRateRepository(
         impl: ExchangeRateRepositoryImpl,
     ): ExchangeRateRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserPreferencesRepository(
+        impl: UserPreferencesRepositoryImpl,
+    ): UserPreferencesRepository
 }
