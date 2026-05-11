@@ -97,6 +97,27 @@ class SettingsHomeViewModelTest {
     }
 
     @Test
+    fun onDefaultCurrencyChangeRejectsShortInput() = runTest {
+        every { prefsRepo.flow } returns flowOf(UserPreferences())
+
+        val vm = newVm()
+        vm.onDefaultCurrencyChange("eu") // only 2 letters
+        vm.onDefaultCurrencyChange("")    // empty
+        vm.onDefaultCurrencyChange("u 1") // non-letters dropped, leaves only "U"
+        coVerify(exactly = 0) { prefsRepo.setDefaultCurrency(any()) }
+    }
+
+    @Test
+    fun onDefaultCurrencyChangeDropsDigitsAndPunctuation() = runTest {
+        every { prefsRepo.flow } returns flowOf(UserPreferences())
+        coEvery { prefsRepo.setDefaultCurrency(any()) } returns Unit
+
+        val vm = newVm()
+        vm.onDefaultCurrencyChange("u-s-d-x") // letters: u, s, d, x → take 3 → USD
+        coVerify { prefsRepo.setDefaultCurrency("USD") }
+    }
+
+    @Test
     fun refreshRatesCallsRepoWithOtherCurrencies() = runTest {
         every { prefsRepo.flow } returns flowOf(UserPreferences(defaultCurrency = "USD"))
         every { accountRepo.observeAll() } returns flowOf(

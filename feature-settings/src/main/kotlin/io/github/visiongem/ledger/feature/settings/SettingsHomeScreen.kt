@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -17,10 +18,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -166,17 +171,33 @@ private fun ThemeMode.labelRes(): Int = when (this) {
 
 @Composable
 private fun CurrencySection(current: String, onChange: (String) -> Unit) {
+    // Local draft state so typing renders immediately — committing to DataStore on every
+    // keystroke (the previous design) made the field lag a round-trip behind the user.
+    // Draft initializes from current and stays user-driven afterwards; the next time the
+    // composable enters composition it picks up whatever DataStore now holds.
+    var draft by remember { mutableStateOf(current) }
+
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(text = stringResource(R.string.settings_currency_title), style = MaterialTheme.typography.titleMedium)
         OutlinedTextField(
-            value = current,
-            onValueChange = onChange,
+            value = draft,
+            onValueChange = { input ->
+                // Drop non-letters (digits, spaces, punctuation) before uppercasing + truncating.
+                val normalized = input.filter { it.isLetter() }.uppercase().take(ISO_LENGTH)
+                draft = normalized
+                // Only commit ISO 4217-shaped (3 letters) values so partial / empty input
+                // doesn't overwrite the previously-saved currency with garbage.
+                if (normalized.length == ISO_LENGTH) onChange(normalized)
+            },
             label = { Text(stringResource(R.string.settings_currency_hint)) },
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
         )
     }
 }
+
+private const val ISO_LENGTH = 3
 
 @Composable
 private fun AboutSection(version: String) {

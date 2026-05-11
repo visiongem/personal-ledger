@@ -57,7 +57,11 @@ class SettingsHomeViewModel @Inject constructor(
     }
 
     fun onDefaultCurrencyChange(currency: String) {
-        val normalized = currency.uppercase().take(MAX_CURRENCY_LENGTH)
+        // Defense in depth: drop non-letters, uppercase, keep up to 3 chars.
+        // Then require exactly 3 letters — otherwise empty / 2-letter / digit-only input
+        // would overwrite the previously-saved currency with garbage.
+        val normalized = currency.filter { it.isLetter() }.uppercase().take(MAX_CURRENCY_LENGTH)
+        if (normalized.length != MAX_CURRENCY_LENGTH) return
         viewModelScope.launch {
             userPreferencesRepository.setDefaultCurrency(normalized)
         }
