@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
@@ -112,6 +113,10 @@ private fun LedgerApp() {
                 }
             }
         },
+        // Per-feature Scaffolds (with their own TopAppBar) consume the status-bar inset
+        // themselves; if the outer Scaffold also consumes it, the title is pushed down
+        // by an extra status-bar height. Zero out here so insets land in one place only.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { paddingValues ->
         NavDisplay(
             backStack = currentStack,
