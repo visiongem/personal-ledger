@@ -30,11 +30,13 @@ class RecordListViewModel @Inject constructor(
         RecordListUiState(
             rows = records.map { record ->
                 val account = accountById[record.accountId]
+                val targetAccount = record.transferToAccountId?.let { accountById[it] }
                 RecordRow(
                     record = record,
                     accountName = account?.name ?: "Unknown",
                     categoryName = record.categoryId?.let { categoryById[it]?.name },
                     displayCurrency = account?.currencyCode ?: "USD",
+                    targetAccountName = targetAccount?.name,
                 )
             },
             loading = false,

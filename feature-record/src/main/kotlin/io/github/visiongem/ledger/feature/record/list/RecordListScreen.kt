@@ -61,8 +61,14 @@ fun RecordListScreen(
                                 Text("$sign ${row.displayCurrency} ${row.record.amount.toPlainString()}")
                             },
                             supportingContent = {
-                                val cat = row.categoryName ?: "(no category)"
-                                Text("$cat · ${row.accountName} · ${row.record.occurredOn}")
+                                val text = if (row.record.type == RecordType.TRANSFER) {
+                                    val target = row.targetAccountName ?: "Unknown"
+                                    "${row.accountName} → $target · ${row.record.occurredOn}"
+                                } else {
+                                    val cat = row.categoryName ?: "(no category)"
+                                    "$cat · ${row.accountName} · ${row.record.occurredOn}"
+                                }
+                                Text(text)
                             },
                             modifier = Modifier.clickable { onRecordClick(row.record.id) },
                         )

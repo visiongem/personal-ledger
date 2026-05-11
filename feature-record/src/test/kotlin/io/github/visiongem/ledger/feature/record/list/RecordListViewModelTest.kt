@@ -128,4 +128,35 @@ class RecordListViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun transferRowResolvesBothSourceAndTargetAccountNames() = runTest {
+        val savings = cashAccount.copy(id = 2L, name = "Savings")
+        val transferRecord = Record(
+            id = 9L,
+            accountId = 1L,
+            categoryId = null,
+            type = RecordType.TRANSFER,
+            amount = BigDecimal("200"),
+            occurredOn = LocalDate.of(2026, 5, 11),
+            note = null,
+            transferToAccountId = 2L,
+            transferAmount = BigDecimal("200"),
+        )
+        every { recordRepo.observeInRange(any(), any()) } returns flowOf(listOf(transferRecord))
+        every { accountRepo.observeAll() } returns flowOf(listOf(cashAccount, savings))
+        every { categoryRepo.observeAll() } returns flowOf(emptyList())
+
+        val vm = RecordListViewModel(recordRepo, accountRepo, categoryRepo)
+
+        vm.state.test {
+            val loaded = awaitItem()
+            assertThat(loaded.rows).hasSize(1)
+            val row = loaded.rows[0]
+            assertThat(row.accountName).isEqualTo("Cash")
+            assertThat(row.targetAccountName).isEqualTo("Savings")
+            assertThat(row.categoryName).isNull()
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
 }

@@ -7,6 +7,7 @@ data class RecordRow(
     val accountName: String,
     val categoryName: String?,
     val displayCurrency: String,
+    val targetAccountName: String? = null,
 )
 
 data class RecordListUiState(
