@@ -3,9 +3,11 @@ package io.github.visiongem.ledger.core.data.local.prefs
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.visiongem.ledger.core.data.domain.ThemeMode
 import io.github.visiongem.ledger.core.data.domain.UserPreferences
+import java.time.Instant
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -19,6 +21,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             themeMode = prefs[KEY_THEME_MODE]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
                 ?: ThemeMode.SYSTEM,
             defaultCurrency = prefs[KEY_DEFAULT_CURRENCY] ?: DEFAULT_CURRENCY,
+            lastRateRefreshAt = prefs[KEY_LAST_RATE_REFRESH_AT]?.let(Instant::ofEpochMilli),
         )
     }
 
@@ -30,9 +33,14 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         dataStore.edit { it[KEY_DEFAULT_CURRENCY] = currency }
     }
 
+    override suspend fun setLastRateRefreshAt(instant: Instant) {
+        dataStore.edit { it[KEY_LAST_RATE_REFRESH_AT] = instant.toEpochMilli() }
+    }
+
     private companion object {
         val KEY_THEME_MODE = stringPreferencesKey("theme_mode")
         val KEY_DEFAULT_CURRENCY = stringPreferencesKey("default_currency")
+        val KEY_LAST_RATE_REFRESH_AT = longPreferencesKey("last_rate_refresh_at")
         const val DEFAULT_CURRENCY = "USD"
     }
 }

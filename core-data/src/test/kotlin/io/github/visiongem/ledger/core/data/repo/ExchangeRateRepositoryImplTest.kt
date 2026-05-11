@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import io.github.visiongem.ledger.core.data.local.dao.ExchangeRateDao
 import io.github.visiongem.ledger.core.data.local.entity.ExchangeRateEntity
+import io.github.visiongem.ledger.core.data.local.prefs.UserPreferencesRepository
 import io.github.visiongem.ledger.core.data.remote.FrankfurterApi
 import io.github.visiongem.ledger.core.data.remote.FrankfurterRatesResponse
 import io.mockk.coEvery
@@ -12,6 +13,7 @@ import io.mockk.every
 import io.mockk.mockk
 import java.io.IOException
 import java.math.BigDecimal
+import java.time.Instant
 import java.time.LocalDate
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -21,7 +23,8 @@ class ExchangeRateRepositoryImplTest {
 
     private val dao = mockk<ExchangeRateDao>()
     private val api = mockk<FrankfurterApi>()
-    private val repo: ExchangeRateRepository = ExchangeRateRepositoryImpl(dao, api)
+    private val userPreferencesRepository = mockk<UserPreferencesRepository>(relaxed = true)
+    private val repo: ExchangeRateRepository = ExchangeRateRepositoryImpl(dao, api, userPreferencesRepository)
 
     private val date = LocalDate.of(2026, 5, 10)
 
@@ -101,6 +104,7 @@ class ExchangeRateRepositoryImplTest {
         assertThat(result.isSuccess).isTrue()
         assertThat(result.getOrThrow()).hasSize(2)
         coVerify { dao.upsertAll(match { it.size == 2 }) }
+        coVerify { userPreferencesRepository.setLastRateRefreshAt(any<Instant>()) }
     }
 
     @Test
@@ -111,5 +115,6 @@ class ExchangeRateRepositoryImplTest {
 
         assertThat(result.isFailure).isTrue()
         coVerify(exactly = 0) { dao.upsertAll(any()) }
+        coVerify(exactly = 0) { userPreferencesRepository.setLastRateRefreshAt(any<Instant>()) }
     }
 }

@@ -16,6 +16,8 @@
     <string name="settings_rates_no_others">No other currencies to refresh.</string>
     <string name="settings_rates_updated">Rates updated.</string>
     <string name="settings_rates_failed">Refresh failed.</string>
+    <string name="settings_rates_last_updated_fmt">Last updated: %1$s</string>
+    <string name="settings_rates_never">Never</string>
 
     <string name="settings_backup_title">Backup &amp; restore</string>
     <string name="settings_backup_export">Export backup (ZIP)</string>

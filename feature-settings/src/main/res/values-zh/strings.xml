@@ -16,6 +16,8 @@
     <string name="settings_rates_no_others">没有其他币种需要刷新。</string>
     <string name="settings_rates_updated">汇率已更新。</string>
     <string name="settings_rates_failed">刷新失败。</string>
+    <string name="settings_rates_last_updated_fmt">上次更新：%1$s</string>
+    <string name="settings_rates_never">从未</string>
 
     <string name="settings_backup_title">备份与恢复</string>
     <string name="settings_backup_export">导出备份（ZIP）</string>

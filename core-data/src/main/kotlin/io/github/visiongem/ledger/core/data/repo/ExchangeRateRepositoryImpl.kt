@@ -4,9 +4,11 @@ import io.github.visiongem.ledger.core.data.domain.ExchangeRate
 import io.github.visiongem.ledger.core.data.local.dao.ExchangeRateDao
 import io.github.visiongem.ledger.core.data.local.mapper.toDomain
 import io.github.visiongem.ledger.core.data.local.mapper.toEntity
+import io.github.visiongem.ledger.core.data.local.prefs.UserPreferencesRepository
 import io.github.visiongem.ledger.core.data.remote.FrankfurterApi
 import io.github.visiongem.ledger.core.data.remote.FrankfurterRatesResponse
 import java.math.BigDecimal
+import java.time.Instant
 import java.time.LocalDate
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.map
 class ExchangeRateRepositoryImpl @Inject constructor(
     private val dao: ExchangeRateDao,
     private val api: FrankfurterApi,
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) : ExchangeRateRepository {
 
     override fun observeLatest(base: String, quote: String): Flow<ExchangeRate?> =
@@ -44,6 +47,7 @@ class ExchangeRateRepositoryImpl @Inject constructor(
         val asOf = LocalDate.parse(response.date)
         val rates = response.toRates(asOf)
         dao.upsertAll(rates.map { it.toEntity() })
+        userPreferencesRepository.setLastRateRefreshAt(Instant.now())
         rates
     }
 

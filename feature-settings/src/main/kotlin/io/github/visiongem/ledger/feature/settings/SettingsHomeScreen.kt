@@ -31,6 +31,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.visiongem.ledger.core.data.domain.ThemeMode
 import io.github.visiongem.ledger.core.ui.component.ViaTopBar
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Locale
 
 @Composable
 fun SettingsHomeScreen(
@@ -56,6 +61,7 @@ fun SettingsHomeScreen(
             RatesSection(
                 refreshing = state.refreshingRates,
                 message = state.ratesMessage,
+                lastRefreshedAt = state.lastRateRefreshAt,
                 onRefresh = viewModel::refreshRates,
             )
             HorizontalDivider()
@@ -114,6 +120,7 @@ private fun BackupSection(
 private fun RatesSection(
     refreshing: Boolean,
     message: String?,
+    lastRefreshedAt: Instant?,
     onRefresh: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -127,6 +134,15 @@ private fun RatesSection(
             enabled = !refreshing,
             modifier = Modifier.fillMaxWidth(),
         )
+        Text(
+            text = stringResource(
+                R.string.settings_rates_last_updated_fmt,
+                lastRefreshedAt?.let(::formatRefreshTimestamp)
+                    ?: stringResource(R.string.settings_rates_never),
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         message?.let {
             Text(
                 text = it,
@@ -135,6 +151,14 @@ private fun RatesSection(
             )
         }
     }
+}
+
+private fun formatRefreshTimestamp(instant: Instant): String {
+    val formatter = DateTimeFormatter
+        .ofLocalizedDateTime(FormatStyle.MEDIUM)
+        .withLocale(Locale.getDefault())
+        .withZone(ZoneId.systemDefault())
+    return formatter.format(instant)
 }
 
 @Composable

@@ -41,6 +41,7 @@ class SettingsHomeViewModel @Inject constructor(
             defaultCurrency = prefs.defaultCurrency,
             refreshingRates = transient.refreshingRates,
             ratesMessage = transient.ratesMessage,
+            lastRateRefreshAt = prefs.lastRateRefreshAt,
             backupBusy = transient.backupBusy,
             backupMessage = transient.backupMessage,
         )
