@@ -2,17 +2,22 @@ package io.github.visiongem.ledger.feature.stats
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import io.github.visiongem.ledger.core.data.domain.Account
 import io.github.visiongem.ledger.core.data.domain.Category
 import io.github.visiongem.ledger.core.data.domain.CategoryType
+import io.github.visiongem.ledger.core.data.domain.ExchangeRate
 import io.github.visiongem.ledger.core.data.domain.Record
 import io.github.visiongem.ledger.core.data.domain.RecordType
 import io.github.visiongem.ledger.core.data.domain.UserPreferences
 import io.github.visiongem.ledger.core.data.local.prefs.UserPreferencesRepository
+import io.github.visiongem.ledger.core.data.repo.AccountRepository
 import io.github.visiongem.ledger.core.data.repo.CategoryRepository
+import io.github.visiongem.ledger.core.data.repo.ExchangeRateRepository
 import io.github.visiongem.ledger.core.data.repo.RecordRepository
 import io.mockk.every
 import io.mockk.mockk
 import java.math.BigDecimal
+import java.time.Instant
 import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,7 +35,26 @@ class StatsHomeViewModelTest {
 
     private val recordRepo = mockk<RecordRepository>()
     private val categoryRepo = mockk<CategoryRepository>()
+    private val accountRepo = mockk<AccountRepository>()
+    private val rateRepo = mockk<ExchangeRateRepository>()
     private val prefsRepo = mockk<UserPreferencesRepository>()
+
+    private val usdAccount = Account(
+        id = 1L,
+        name = "USD",
+        currencyCode = "USD",
+        openingBalance = BigDecimal.ZERO,
+        archived = false,
+        createdAt = Instant.parse("2026-05-10T00:00:00Z"),
+    )
+    private val eurAccount = Account(
+        id = 2L,
+        name = "EUR",
+        currencyCode = "EUR",
+        openingBalance = BigDecimal.ZERO,
+        archived = false,
+        createdAt = Instant.parse("2026-05-10T00:00:00Z"),
+    )
 
     @BeforeEach
     fun setUp() {
@@ -46,29 +70,28 @@ class StatsHomeViewModelTest {
     @Test
     fun emptyDataYieldsZeroTotals() = runTest {
         every { recordRepo.observeInRange(any(), any()) } returns flowOf(emptyList())
+        every { accountRepo.observeAll() } returns flowOf(emptyList())
         every { categoryRepo.observeAll() } returns flowOf(emptyList())
 
-        val vm = StatsHomeViewModel(recordRepo, categoryRepo, prefsRepo)
+        val vm = StatsHomeViewModel(recordRepo, categoryRepo, accountRepo, rateRepo, prefsRepo)
 
         vm.state.test {
             val loaded = awaitItem()
             assertThat(loaded.loading).isFalse()
             assertThat(loaded.incomeTotal).isEqualTo(BigDecimal.ZERO)
             assertThat(loaded.expenseTotal).isEqualTo(BigDecimal.ZERO)
-            assertThat(loaded.net).isEqualTo(BigDecimal.ZERO)
-            assertThat(loaded.expenseByCategory).isEmpty()
+            assertThat(loaded.unconvertedCount).isEqualTo(0)
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun aggregatesIncomeExpenseAndCategoryBreakdown() = runTest {
+    fun aggregatesSameCurrencyIncomeAndExpense() = runTest {
         val today = LocalDate.now()
         val records = listOf(
             Record(1L, 1L, 100L, RecordType.INCOME, BigDecimal("1000"), today),
             Record(2L, 1L, 10L, RecordType.EXPENSE, BigDecimal("12.50"), today),
-            Record(3L, 1L, 10L, RecordType.EXPENSE, BigDecimal("7.50"), today),
-            Record(4L, 1L, 20L, RecordType.EXPENSE, BigDecimal("100"), today),
+            Record(3L, 1L, 20L, RecordType.EXPENSE, BigDecimal("100"), today),
         )
         val categories = listOf(
             Category(10L, "Food", CategoryType.EXPENSE, null, 0),
@@ -76,21 +99,64 @@ class StatsHomeViewModelTest {
             Category(100L, "Salary", CategoryType.INCOME, null, 0),
         )
         every { recordRepo.observeInRange(any(), any()) } returns flowOf(records)
+        every { accountRepo.observeAll() } returns flowOf(listOf(usdAccount))
         every { categoryRepo.observeAll() } returns flowOf(categories)
 
-        val vm = StatsHomeViewModel(recordRepo, categoryRepo, prefsRepo)
+        val vm = StatsHomeViewModel(recordRepo, categoryRepo, accountRepo, rateRepo, prefsRepo)
 
         vm.state.test {
             val loaded = awaitItem()
             assertThat(loaded.incomeTotal).isEqualTo(BigDecimal("1000"))
-            assertThat(loaded.expenseTotal).isEqualTo(BigDecimal("120.00"))
-            assertThat(loaded.net).isEqualTo(BigDecimal("880.00"))
-            // Sorted by total desc — Transport (100) > Food (20.00)
-            assertThat(loaded.expenseByCategory).hasSize(2)
-            assertThat(loaded.expenseByCategory[0].categoryName).isEqualTo("Transport")
-            assertThat(loaded.expenseByCategory[0].total).isEqualTo(BigDecimal("100"))
-            assertThat(loaded.expenseByCategory[1].categoryName).isEqualTo("Food")
-            assertThat(loaded.expenseByCategory[1].total).isEqualTo(BigDecimal("20.00"))
+            assertThat(loaded.expenseTotal).isEqualTo(BigDecimal("112.50"))
+            assertThat(loaded.unconvertedCount).isEqualTo(0)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun crossCurrencyConvertsViaCachedRate() = runTest {
+        val today = LocalDate.now()
+        val records = listOf(
+            Record(1L, 2L, 10L, RecordType.EXPENSE, BigDecimal("100"), today), // EUR account
+            Record(2L, 1L, 10L, RecordType.EXPENSE, BigDecimal("50"), today),  // USD account
+        )
+        every { recordRepo.observeInRange(any(), any()) } returns flowOf(records)
+        every { accountRepo.observeAll() } returns flowOf(listOf(usdAccount, eurAccount))
+        every { categoryRepo.observeAll() } returns
+            flowOf(listOf(Category(10L, "Food", CategoryType.EXPENSE, null, 0)))
+        every { rateRepo.observeLatest("EUR", "USD") } returns flowOf(
+            ExchangeRate("EUR", "USD", BigDecimal("1.10"), today)
+        )
+
+        val vm = StatsHomeViewModel(recordRepo, categoryRepo, accountRepo, rateRepo, prefsRepo)
+
+        vm.state.test {
+            val loaded = awaitItem()
+            // 100 * 1.10 = 110.00 (EUR converted) + 50 (USD already default) = 160.00
+            assertThat(loaded.expenseTotal).isEqualTo(BigDecimal("160.00"))
+            assertThat(loaded.unconvertedCount).isEqualTo(0)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun missingRateIncrementsUnconvertedCount() = runTest {
+        val today = LocalDate.now()
+        val records = listOf(
+            Record(1L, 2L, 10L, RecordType.EXPENSE, BigDecimal("100"), today),
+        )
+        every { recordRepo.observeInRange(any(), any()) } returns flowOf(records)
+        every { accountRepo.observeAll() } returns flowOf(listOf(usdAccount, eurAccount))
+        every { categoryRepo.observeAll() } returns
+            flowOf(listOf(Category(10L, "Food", CategoryType.EXPENSE, null, 0)))
+        every { rateRepo.observeLatest("EUR", "USD") } returns flowOf(null)
+
+        val vm = StatsHomeViewModel(recordRepo, categoryRepo, accountRepo, rateRepo, prefsRepo)
+
+        vm.state.test {
+            val loaded = awaitItem()
+            assertThat(loaded.expenseTotal).isEqualTo(BigDecimal.ZERO)
+            assertThat(loaded.unconvertedCount).isEqualTo(1)
             cancelAndIgnoreRemainingEvents()
         }
     }

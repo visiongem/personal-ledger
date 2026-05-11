@@ -2,13 +2,20 @@ package io.github.visiongem.ledger.feature.settings
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import io.github.visiongem.ledger.core.data.domain.Account
+import io.github.visiongem.ledger.core.data.domain.ExchangeRate
 import io.github.visiongem.ledger.core.data.domain.ThemeMode
 import io.github.visiongem.ledger.core.data.domain.UserPreferences
 import io.github.visiongem.ledger.core.data.local.prefs.UserPreferencesRepository
+import io.github.visiongem.ledger.core.data.repo.AccountRepository
+import io.github.visiongem.ledger.core.data.repo.ExchangeRateRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import java.math.BigDecimal
+import java.time.Instant
+import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -24,6 +31,8 @@ import org.junit.jupiter.api.Test
 class SettingsHomeViewModelTest {
 
     private val prefsRepo = mockk<UserPreferencesRepository>()
+    private val accountRepo = mockk<AccountRepository>()
+    private val rateRepo = mockk<ExchangeRateRepository>()
 
     @BeforeEach
     fun setUp() {
@@ -35,13 +44,15 @@ class SettingsHomeViewModelTest {
         Dispatchers.resetMain()
     }
 
+    private fun newVm() = SettingsHomeViewModel(prefsRepo, accountRepo, rateRepo)
+
     @Test
     fun stateMirrorsRepositoryFlow() = runTest {
         every { prefsRepo.flow } returns flowOf(
             UserPreferences(themeMode = ThemeMode.DARK, defaultCurrency = "EUR")
         )
 
-        val vm = SettingsHomeViewModel(prefsRepo)
+        val vm = newVm()
 
         vm.state.test {
             val ui = awaitItem()
@@ -56,7 +67,7 @@ class SettingsHomeViewModelTest {
         every { prefsRepo.flow } returns flowOf(UserPreferences())
         coEvery { prefsRepo.setThemeMode(any()) } returns Unit
 
-        val vm = SettingsHomeViewModel(prefsRepo)
+        val vm = newVm()
         vm.onThemeModeChange(ThemeMode.LIGHT)
         coVerify { prefsRepo.setThemeMode(ThemeMode.LIGHT) }
     }
@@ -66,8 +77,8 @@ class SettingsHomeViewModelTest {
         every { prefsRepo.flow } returns flowOf(UserPreferences())
         coEvery { prefsRepo.setDefaultCurrency(any()) } returns Unit
 
-        val vm = SettingsHomeViewModel(prefsRepo)
-        vm.onDefaultCurrencyChange("eur") // lowercase + 3 letters
+        val vm = newVm()
+        vm.onDefaultCurrencyChange("eur")
         coVerify { prefsRepo.setDefaultCurrency("EUR") }
     }
 
@@ -76,8 +87,42 @@ class SettingsHomeViewModelTest {
         every { prefsRepo.flow } returns flowOf(UserPreferences())
         coEvery { prefsRepo.setDefaultCurrency(any()) } returns Unit
 
-        val vm = SettingsHomeViewModel(prefsRepo)
-        vm.onDefaultCurrencyChange("euros") // 5 letters
+        val vm = newVm()
+        vm.onDefaultCurrencyChange("euros")
         coVerify { prefsRepo.setDefaultCurrency("EUR") }
+    }
+
+    @Test
+    fun refreshRatesCallsRepoWithOtherCurrencies() = runTest {
+        every { prefsRepo.flow } returns flowOf(UserPreferences(defaultCurrency = "USD"))
+        every { accountRepo.observeAll() } returns flowOf(
+            listOf(
+                Account(1L, "USD", "USD", BigDecimal.ZERO, false, Instant.parse("2026-05-10T00:00:00Z")),
+                Account(2L, "EUR", "EUR", BigDecimal.ZERO, false, Instant.parse("2026-05-10T00:00:00Z")),
+                Account(3L, "CNY", "CNY", BigDecimal.ZERO, false, Instant.parse("2026-05-10T00:00:00Z")),
+            )
+        )
+        coEvery { rateRepo.refreshLatest("USD", listOf("EUR", "CNY")) } returns
+            Result.success(emptyList<ExchangeRate>())
+
+        val vm = newVm()
+        vm.refreshRates()
+
+        coVerify { rateRepo.refreshLatest("USD", listOf("EUR", "CNY")) }
+    }
+
+    @Test
+    fun refreshRatesNoOpWhenAllAccountsMatchDefault() = runTest {
+        every { prefsRepo.flow } returns flowOf(UserPreferences(defaultCurrency = "USD"))
+        every { accountRepo.observeAll() } returns flowOf(
+            listOf(
+                Account(1L, "USD", "USD", BigDecimal.ZERO, false, Instant.parse("2026-05-10T00:00:00Z")),
+            )
+        )
+
+        val vm = newVm()
+        vm.refreshRates()
+
+        coVerify(exactly = 0) { rateRepo.refreshLatest(any(), any()) }
     }
 }

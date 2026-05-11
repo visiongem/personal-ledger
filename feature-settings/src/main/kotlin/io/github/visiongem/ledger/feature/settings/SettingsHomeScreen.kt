@@ -44,7 +44,37 @@ fun SettingsHomeScreen(
             HorizontalDivider()
             CurrencySection(state.defaultCurrency, viewModel::onDefaultCurrencyChange)
             HorizontalDivider()
+            RatesSection(
+                refreshing = state.refreshingRates,
+                message = state.ratesMessage,
+                onRefresh = viewModel::refreshRates,
+            )
+            HorizontalDivider()
             AboutSection(state.versionName)
+        }
+    }
+}
+
+@Composable
+private fun RatesSection(
+    refreshing: Boolean,
+    message: String?,
+    onRefresh: () -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(text = "Exchange rates", style = MaterialTheme.typography.titleMedium)
+        io.github.visiongem.ledger.core.ui.component.ViaOutlineButton(
+            text = if (refreshing) "Refreshing…" else "Refresh exchange rates",
+            onClick = onRefresh,
+            enabled = !refreshing,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        message?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

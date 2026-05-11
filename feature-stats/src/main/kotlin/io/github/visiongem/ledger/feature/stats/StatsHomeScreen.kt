@@ -47,6 +47,13 @@ fun StatsHomeScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
+                    if (state.unconvertedCount > 0) {
+                        Text(
+                            text = "${state.unconvertedCount} record(s) skipped — exchange rate missing. Refresh from Settings.",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                     SummaryCards(state)
                     HorizontalDivider()
                     Text(

@@ -15,5 +15,6 @@ data class StatsHomeUiState(
     val net: BigDecimal = BigDecimal.ZERO,
     val expenseByCategory: List<CategoryTotal> = emptyList(),
     val displayCurrency: String = "USD",
+    val unconvertedCount: Int = 0,
     val loading: Boolean = true,
 )
