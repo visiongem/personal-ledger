@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -16,6 +18,8 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +40,12 @@ import io.github.visiongem.ledger.core.ui.component.ViaFillButton
 import io.github.visiongem.ledger.core.ui.component.ViaSelectorField
 import io.github.visiongem.ledger.core.ui.component.ViaTopBar
 import io.github.visiongem.ledger.feature.record.R
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Locale
 
 @Composable
 fun RecordEditScreen(
@@ -123,12 +133,9 @@ fun RecordEditScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 )
             }
-            OutlinedTextField(
+            DatePickerField(
                 value = state.dateInput,
-                onValueChange = viewModel::onDateChange,
-                label = { Text(stringResource(R.string.record_date_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
+                onChange = viewModel::onDateChange,
             )
             OutlinedTextField(
                 value = state.note,
@@ -200,6 +207,60 @@ private fun AccountPicker(
             onSelect = { onSelect(it.id) },
             onDismiss = { sheetOpen = false },
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DatePickerField(
+    value: String,
+    onChange: (String) -> Unit,
+) {
+    val parsedDate = remember(value) {
+        runCatching { LocalDate.parse(value) }.getOrNull()
+    }
+    val locale = Locale.getDefault()
+    val formatter = remember(locale) {
+        DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
+    }
+    val label = stringResource(R.string.record_date_label)
+    val placeholder = stringResource(R.string.record_date_placeholder)
+
+    var open by remember { mutableStateOf(false) }
+    ViaSelectorField(
+        label = label,
+        valueLabel = parsedDate?.format(formatter) ?: placeholder,
+        onClick = { open = true },
+    )
+    if (open) {
+        val initialMillis = (parsedDate ?: LocalDate.now())
+            .atStartOfDay(ZoneOffset.UTC)
+            .toInstant()
+            .toEpochMilli()
+        val pickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
+        DatePickerDialog(
+            onDismissRequest = { open = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    pickerState.selectedDateMillis?.let { millis ->
+                        val date = Instant.ofEpochMilli(millis)
+                            .atZone(ZoneOffset.UTC)
+                            .toLocalDate()
+                        onChange(date.toString())
+                    }
+                    open = false
+                }) {
+                    Text(stringResource(android.R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { open = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            },
+        ) {
+            DatePicker(state = pickerState)
+        }
     }
 }
 

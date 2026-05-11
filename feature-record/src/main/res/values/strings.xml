@@ -18,7 +18,8 @@
     <string name="record_amount">Amount</string>
     <string name="record_amount_source">Amount (source)</string>
     <string name="record_amount_destination_fmt">Amount (destination, %1$s)</string>
-    <string name="record_date_label">Date (yyyy-MM-dd)</string>
+    <string name="record_date_label">Date</string>
+    <string name="record_date_placeholder">Select date</string>
     <string name="record_note_label">Note (optional)</string>
     <string name="record_save">Save</string>
 
