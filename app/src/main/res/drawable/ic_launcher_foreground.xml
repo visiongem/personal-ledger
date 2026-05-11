@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive launcher foreground.
+     Viewport 108x108; safe zone is the inner 18..90 box (Android masks the outer 18dp). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- White "B" with two counters cut out via evenOdd fill rule -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M24,26 L44,26 C56,26 56,54 44,54 C58,54 58,82 44,82 L24,82 Z
+                          M32,34 L38,34 C48,34 48,46 38,46 L32,46 Z
+                          M32,62 L38,62 C50,62 50,74 38,74 L32,74 Z" />
+
+    <!-- Top-right white circle badge (center 78,32 r=14) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M64,32 C64,24.27 70.27,18 78,18 C85.73,18 92,24.27 92,32 C92,39.73 85.73,46 78,46 C70.27,46 64,39.73 64,32 Z" />
+
+    <!-- 记 inside the badge, drawn in the orange background color so it punches through -->
+    <!-- 讠 dot (top of left radical) -->
+    <path
+        android:fillColor="@color/ic_launcher_background"
+        android:pathData="M68.8,25 C68.8,24.34 69.34,23.8 70,23.8 C70.66,23.8 71.2,24.34 71.2,25 C71.2,25.66 70.66,26.2 70,26.2 C69.34,26.2 68.8,25.66 68.8,25 Z" />
+
+    <!-- 讠 curve (横折提 simplified to a smooth curve) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="@color/ic_launcher_background"
+        android:strokeWidth="1.4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M69,30 Q72,30 73,33 Q73,38 70.5,40" />
+
+    <!-- 己 stroke 1: top horizontal + right vertical (横折) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="@color/ic_launcher_background"
+        android:strokeWidth="1.4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M75,26 L86,26 L86,32" />
+
+    <!-- 己 stroke 2: middle horizontal (横) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="@color/ic_launcher_background"
+        android:strokeWidth="1.4"
+        android:strokeLineCap="round"
+        android:pathData="M75,32 L86,32" />
+
+    <!-- 己 stroke 3: left vertical + bottom + right hook (竖弯钩) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="@color/ic_launcher_background"
+        android:strokeWidth="1.4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M75,26 L75,38 Q75,40 77,40 L86,40 L86,37" />
+</vector>
