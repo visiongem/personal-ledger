@@ -24,4 +24,7 @@ interface BudgetDao {
 
     @Query("SELECT * FROM budget WHERE categoryId = :categoryId AND month = :month")
     fun observeByCategoryAndMonth(categoryId: Long, month: YearMonth): Flow<BudgetEntity?>
+
+    @Query("SELECT * FROM budget")
+    suspend fun getAll(): List<BudgetEntity>
 }

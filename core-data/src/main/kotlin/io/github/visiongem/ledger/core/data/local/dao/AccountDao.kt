@@ -23,4 +23,7 @@ interface AccountDao {
 
     @Query("SELECT * FROM account WHERE id = :id")
     fun observeById(id: Long): Flow<AccountEntity?>
+
+    @Query("SELECT * FROM account")
+    suspend fun getAll(): List<AccountEntity>
 }

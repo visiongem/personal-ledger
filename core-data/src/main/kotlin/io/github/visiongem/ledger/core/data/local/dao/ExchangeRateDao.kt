@@ -33,4 +33,7 @@ interface ExchangeRateDao {
 
     @Query("DELETE FROM exchange_rate WHERE asOf < :before")
     suspend fun deleteBefore(before: LocalDate)
+
+    @Query("SELECT * FROM exchange_rate")
+    suspend fun getAll(): List<ExchangeRateEntity>
 }

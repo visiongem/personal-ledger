@@ -46,4 +46,7 @@ interface RecordDao {
         startInclusive: LocalDate,
         endInclusive: LocalDate,
     ): Flow<List<RecordEntity>>
+
+    @Query("SELECT * FROM record")
+    suspend fun getAll(): List<RecordEntity>
 }
