@@ -68,6 +68,8 @@ class RecordEditViewModel @Inject constructor(
                     type = record.type,
                     accountId = record.accountId,
                     categoryId = record.categoryId,
+                    targetAccountId = record.transferToAccountId,
+                    transferAmount = record.transferAmount?.toPlainString().orEmpty(),
                     amount = record.amount.toPlainString(),
                     dateInput = record.occurredOn.toString(),
                     note = record.note.orEmpty(),
@@ -77,14 +79,18 @@ class RecordEditViewModel @Inject constructor(
         }
     }
 
-    // TRANSFER is deferred to a later plan; UI never offers it.
     fun onTypeChange(type: RecordType) {
-        if (type == RecordType.TRANSFER) return
-        _state.update {
-            it.copy(
+        _state.update { current ->
+            val sameType = type == current.type
+            current.copy(
                 type = type,
-                categoryId = null,
+                // INCOME / EXPENSE pools differ; TRANSFER has no category.
+                categoryId = if (type == RecordType.TRANSFER) null
+                else current.categoryId.takeIf { sameType },
                 categoryOptions = filterCategories(allCategories, type),
+                // Switching away from TRANSFER clears transfer-only fields.
+                targetAccountId = if (type == RecordType.TRANSFER) current.targetAccountId else null,
+                transferAmount = if (type == RecordType.TRANSFER) current.transferAmount else "",
                 errorMessage = null,
             )
         }
@@ -96,6 +102,14 @@ class RecordEditViewModel @Inject constructor(
 
     fun onCategoryChange(id: Long) {
         _state.update { it.copy(categoryId = id, errorMessage = null) }
+    }
+
+    fun onTargetAccountChange(id: Long) {
+        _state.update { it.copy(targetAccountId = id, errorMessage = null) }
+    }
+
+    fun onTransferAmountChange(value: String) {
+        _state.update { it.copy(transferAmount = value, errorMessage = null) }
     }
 
     fun onAmountChange(value: String) {
@@ -116,10 +130,6 @@ class RecordEditViewModel @Inject constructor(
             _state.update { it.copy(errorMessage = "Pick an account") }
             return
         }
-        if (s.categoryId == null) {
-            _state.update { it.copy(errorMessage = "Pick a category") }
-            return
-        }
         val amount = runCatching { BigDecimal(s.amount) }.getOrNull()
         if (amount == null || amount.signum() <= 0) {
             _state.update { it.copy(errorMessage = "Amount must be a positive number") }
@@ -131,6 +141,69 @@ class RecordEditViewModel @Inject constructor(
             return
         }
 
+        when (s.type) {
+            RecordType.TRANSFER -> saveTransfer(s, amount, date)
+            RecordType.INCOME, RecordType.EXPENSE -> saveIncomeOrExpense(s, amount, date)
+        }
+    }
+
+    private fun saveIncomeOrExpense(s: RecordEditUiState, amount: BigDecimal, date: LocalDate) {
+        if (s.categoryId == null) {
+            _state.update { it.copy(errorMessage = "Pick a category") }
+            return
+        }
+        persist(
+            Record(
+                id = s.id ?: 0L,
+                accountId = s.accountId!!,
+                categoryId = s.categoryId,
+                type = s.type,
+                amount = amount,
+                occurredOn = date,
+                note = s.note.takeIf { it.isNotBlank() },
+            )
+        )
+    }
+
+    private fun saveTransfer(s: RecordEditUiState, amount: BigDecimal, date: LocalDate) {
+        if (s.targetAccountId == null) {
+            _state.update { it.copy(errorMessage = "Pick a target account") }
+            return
+        }
+        if (s.targetAccountId == s.accountId) {
+            _state.update { it.copy(errorMessage = "Source and target must be different accounts") }
+            return
+        }
+        val source = s.accountOptions.firstOrNull { it.id == s.accountId }
+        val target = s.accountOptions.firstOrNull { it.id == s.targetAccountId }
+        val transferAmount: BigDecimal = if (source?.currencyCode == target?.currencyCode) {
+            amount
+        } else {
+            val parsed = runCatching { BigDecimal(s.transferAmount) }.getOrNull()
+            if (parsed == null || parsed.signum() <= 0) {
+                _state.update {
+                    it.copy(errorMessage = "Destination amount must be a positive number")
+                }
+                return
+            }
+            parsed
+        }
+        persist(
+            Record(
+                id = s.id ?: 0L,
+                accountId = s.accountId!!,
+                categoryId = null,
+                type = RecordType.TRANSFER,
+                amount = amount,
+                occurredOn = date,
+                note = s.note.takeIf { it.isNotBlank() },
+                transferToAccountId = s.targetAccountId,
+                transferAmount = transferAmount,
+            )
+        )
+    }
+
+    private fun persist(record: Record) {
         launchCatching(
             onError = { error ->
                 _state.update {
@@ -139,17 +212,7 @@ class RecordEditViewModel @Inject constructor(
             }
         ) {
             _state.update { it.copy(saving = true, errorMessage = null) }
-            recordRepository.upsert(
-                Record(
-                    id = s.id ?: 0L,
-                    accountId = s.accountId,
-                    categoryId = s.categoryId,
-                    type = s.type,
-                    amount = amount,
-                    occurredOn = date,
-                    note = s.note.takeIf { it.isNotBlank() },
-                )
-            )
+            recordRepository.upsert(record)
             _state.update { it.copy(saving = false, saved = true) }
         }
     }

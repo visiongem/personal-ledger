@@ -1,6 +1,7 @@
 package io.github.visiongem.ledger.feature.record.edit
 
 import com.google.common.truth.Truth.assertThat
+import io.github.visiongem.ledger.core.data.domain.Account
 import io.github.visiongem.ledger.core.data.domain.Category
 import io.github.visiongem.ledger.core.data.domain.CategoryType
 import io.github.visiongem.ledger.core.data.domain.RecordType
@@ -11,6 +12,8 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import java.math.BigDecimal
+import java.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -32,10 +35,36 @@ class RecordEditViewModelTest {
     private val incomeCategory = Category(1L, "Salary", CategoryType.INCOME, null, 0)
     private val expenseCategory = Category(2L, "Food", CategoryType.EXPENSE, null, 0)
 
+    private val usdAccount = Account(
+        id = 100L,
+        name = "USD Cash",
+        currencyCode = "USD",
+        openingBalance = BigDecimal.ZERO,
+        archived = false,
+        createdAt = Instant.parse("2026-05-10T00:00:00Z"),
+    )
+    private val eurAccount = Account(
+        id = 200L,
+        name = "EUR Cash",
+        currencyCode = "EUR",
+        openingBalance = BigDecimal.ZERO,
+        archived = false,
+        createdAt = Instant.parse("2026-05-10T00:00:00Z"),
+    )
+    private val secondUsdAccount = Account(
+        id = 300L,
+        name = "USD Savings",
+        currencyCode = "USD",
+        openingBalance = BigDecimal.ZERO,
+        archived = false,
+        createdAt = Instant.parse("2026-05-10T00:00:00Z"),
+    )
+
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
-        every { accountRepo.observeActive() } returns flowOf(emptyList())
+        every { accountRepo.observeActive() } returns
+            flowOf(listOf(usdAccount, eurAccount, secondUsdAccount))
         every { categoryRepo.observeAll() } returns
             flowOf(listOf(incomeCategory, expenseCategory))
     }
@@ -112,5 +141,92 @@ class RecordEditViewModelTest {
                     it.note == "Lunch"
             })
         }
+    }
+
+    // ===== TRANSFER paths =====
+
+    @Test
+    fun transferSameCurrencySucceedsAndAutoFillsDestinationAmount() = runTest {
+        coEvery { recordRepo.upsert(any()) } returns 11L
+        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        vm.onTypeChange(RecordType.TRANSFER)
+        vm.onAccountChange(100L) // USD Cash
+        vm.onTargetAccountChange(300L) // USD Savings — same currency
+        vm.onAmountChange("50")
+        vm.onDateChange("2026-05-11")
+        vm.save()
+        assertThat(vm.state.value.saved).isTrue()
+        coVerify {
+            recordRepo.upsert(match {
+                it.type == RecordType.TRANSFER &&
+                    it.accountId == 100L &&
+                    it.categoryId == null &&
+                    it.transferToAccountId == 300L &&
+                    it.transferAmount == BigDecimal("50")
+            })
+        }
+    }
+
+    @Test
+    fun transferCrossCurrencyMissingDestinationAmountFails() = runTest {
+        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        vm.onTypeChange(RecordType.TRANSFER)
+        vm.onAccountChange(100L) // USD
+        vm.onTargetAccountChange(200L) // EUR
+        vm.onAmountChange("50")
+        vm.save()
+        assertThat(vm.state.value.errorMessage).contains("Destination amount")
+        coVerify(exactly = 0) { recordRepo.upsert(any()) }
+    }
+
+    @Test
+    fun transferCrossCurrencyWithDestinationAmountSucceeds() = runTest {
+        coEvery { recordRepo.upsert(any()) } returns 12L
+        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        vm.onTypeChange(RecordType.TRANSFER)
+        vm.onAccountChange(100L) // USD
+        vm.onTargetAccountChange(200L) // EUR
+        vm.onAmountChange("50")
+        vm.onTransferAmountChange("46.25")
+        vm.save()
+        assertThat(vm.state.value.saved).isTrue()
+        coVerify {
+            recordRepo.upsert(match {
+                it.amount == BigDecimal("50") &&
+                    it.transferAmount == BigDecimal("46.25")
+            })
+        }
+    }
+
+    @Test
+    fun transferSameSourceAndTargetFails() = runTest {
+        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        vm.onTypeChange(RecordType.TRANSFER)
+        vm.onAccountChange(100L)
+        vm.onTargetAccountChange(100L)
+        vm.onAmountChange("50")
+        vm.save()
+        assertThat(vm.state.value.errorMessage).contains("different")
+        coVerify(exactly = 0) { recordRepo.upsert(any()) }
+    }
+
+    @Test
+    fun transferMissingTargetAccountFails() = runTest {
+        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        vm.onTypeChange(RecordType.TRANSFER)
+        vm.onAccountChange(100L)
+        vm.onAmountChange("50")
+        vm.save()
+        assertThat(vm.state.value.errorMessage).contains("target account")
+        coVerify(exactly = 0) { recordRepo.upsert(any()) }
+    }
+
+    @Test
+    fun crossCurrencyTransferFlagDetectsDifferingCurrencies() = runTest {
+        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        vm.onTypeChange(RecordType.TRANSFER)
+        vm.onAccountChange(100L) // USD
+        vm.onTargetAccountChange(200L) // EUR
+        assertThat(vm.state.value.crossCurrencyTransfer).isTrue()
     }
 }
