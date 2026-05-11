@@ -28,6 +28,7 @@ import io.github.visiongem.ledger.core.ui.component.ViaLoadingPage
 import io.github.visiongem.ledger.core.ui.component.ViaPieChart
 import io.github.visiongem.ledger.core.ui.component.ViaTopBar
 import io.github.visiongem.ledger.core.ui.component.rememberPiePalette
+import io.github.visiongem.ledger.core.utils.CurrencyFormatter
 import io.github.visiongem.ledger.feature.stats.R
 import java.math.BigDecimal
 
@@ -89,7 +90,7 @@ fun StatsHomeScreen(
                                 BarEntry(
                                     label = entry.categoryName,
                                     value = entry.total,
-                                    valueText = "${state.displayCurrency} ${entry.total.toPlainString()}",
+                                    valueText = CurrencyFormatter.format(entry.total, state.displayCurrency),
                                 )
                             },
                         )
@@ -123,7 +124,7 @@ private fun SummaryCard(
         Column(modifier = Modifier.padding(12.dp)) {
             Text(label, style = MaterialTheme.typography.labelLarge)
             Text(
-                text = "$currency ${amount.toPlainString()}",
+                text = CurrencyFormatter.format(amount, currency),
                 style = MaterialTheme.typography.titleMedium,
             )
         }

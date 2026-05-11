@@ -23,6 +23,7 @@ import io.github.visiongem.ledger.core.data.domain.RecordType
 import io.github.visiongem.ledger.core.ui.component.ViaEmptyPage
 import io.github.visiongem.ledger.core.ui.component.ViaLoadingPage
 import io.github.visiongem.ledger.core.ui.component.ViaTopBar
+import io.github.visiongem.ledger.core.utils.CurrencyFormatter
 import io.github.visiongem.ledger.feature.record.R
 
 @Composable
@@ -62,7 +63,7 @@ fun RecordListScreen(
                                     RecordType.EXPENSE -> "-"
                                     RecordType.TRANSFER -> "→"
                                 }
-                                Text("$sign ${row.displayCurrency} ${row.record.amount.toPlainString()}")
+                                Text("$sign ${CurrencyFormatter.format(row.record.amount, row.displayCurrency)}")
                             },
                             supportingContent = {
                                 val text = if (row.record.type == RecordType.TRANSFER) {

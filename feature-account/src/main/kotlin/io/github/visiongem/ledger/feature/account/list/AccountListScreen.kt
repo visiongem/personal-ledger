@@ -22,6 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.visiongem.ledger.core.ui.component.ViaEmptyPage
 import io.github.visiongem.ledger.core.ui.component.ViaLoadingPage
 import io.github.visiongem.ledger.core.ui.component.ViaTopBar
+import io.github.visiongem.ledger.core.utils.CurrencyFormatter
 import io.github.visiongem.ledger.feature.account.R
 
 @Composable
@@ -55,7 +56,7 @@ fun AccountListScreen(
                         ListItem(
                             headlineContent = { Text(account.name) },
                             supportingContent = {
-                                Text("${account.currencyCode} · ${account.openingBalance.toPlainString()}")
+                                Text(CurrencyFormatter.format(account.openingBalance, account.currencyCode))
                             },
                             modifier = Modifier.clickable { onAccountClick(account.id) },
                         )
