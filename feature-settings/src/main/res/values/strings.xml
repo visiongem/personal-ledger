@@ -18,12 +18,12 @@
     <string name="settings_rates_failed">Refresh failed.</string>
 
     <string name="settings_backup_title">Backup &amp; restore</string>
-    <string name="settings_backup_export">Export records (CSV)</string>
-    <string name="settings_backup_import">Import records (CSV)</string>
-    <string name="settings_backup_exported">Records exported.</string>
+    <string name="settings_backup_export">Export backup (ZIP)</string>
+    <string name="settings_backup_import">Import backup (ZIP)</string>
+    <string name="settings_backup_exported">Backup exported.</string>
     <string name="settings_backup_export_failed">Export failed.</string>
     <string name="settings_backup_read_failed">Couldn\'t read source file.</string>
-    <string name="settings_backup_imported_fmt">%1$d records imported.</string>
+    <string name="settings_backup_imported_fmt">%1$d entries imported.</string>
     <string name="settings_backup_import_failed_fmt">Import failed: %1$s</string>
     <string name="settings_backup_unknown_error">unknown</string>
 

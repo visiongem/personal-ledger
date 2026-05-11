@@ -92,13 +92,13 @@ class SettingsHomeViewModel @Inject constructor(
         }
     }
 
-    fun exportRecordsToUri(uri: Uri) {
+    fun exportBackupToUri(uri: Uri) {
         viewModelScope.launch {
             transientState.update { it.copy(backupBusy = true, backupMessage = null) }
-            val csv = recordBackupRepository.exportToCsv()
+            val bytes = recordBackupRepository.exportZip()
             val ok = runCatching {
                 context.contentResolver.openOutputStream(uri)?.use { out ->
-                    out.write(csv.toByteArray(Charsets.UTF_8))
+                    out.write(bytes)
                 } ?: error("Couldn't open destination for writing")
             }.isSuccess
             transientState.update {
@@ -113,14 +113,13 @@ class SettingsHomeViewModel @Inject constructor(
         }
     }
 
-    fun importRecordsFromUri(uri: Uri) {
+    fun importBackupFromUri(uri: Uri) {
         viewModelScope.launch {
             transientState.update { it.copy(backupBusy = true, backupMessage = null) }
-            val text = runCatching {
-                context.contentResolver.openInputStream(uri)?.bufferedReader(Charsets.UTF_8)
-                    ?.use { it.readText() }
+            val bytes = runCatching {
+                context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
             }.getOrNull()
-            if (text == null) {
+            if (bytes == null) {
                 transientState.update {
                     it.copy(
                         backupBusy = false,
@@ -129,7 +128,7 @@ class SettingsHomeViewModel @Inject constructor(
                 }
                 return@launch
             }
-            val result = recordBackupRepository.importFromCsv(text)
+            val result = recordBackupRepository.importZip(bytes)
             transientState.update {
                 it.copy(
                     backupBusy = false,

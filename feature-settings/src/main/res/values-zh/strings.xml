@@ -18,12 +18,12 @@
     <string name="settings_rates_failed">刷新失败。</string>
 
     <string name="settings_backup_title">备份与恢复</string>
-    <string name="settings_backup_export">导出流水（CSV）</string>
-    <string name="settings_backup_import">导入流水（CSV）</string>
-    <string name="settings_backup_exported">流水已导出。</string>
+    <string name="settings_backup_export">导出备份（ZIP）</string>
+    <string name="settings_backup_import">导入备份（ZIP）</string>
+    <string name="settings_backup_exported">备份已导出。</string>
     <string name="settings_backup_export_failed">导出失败。</string>
     <string name="settings_backup_read_failed">无法读取源文件。</string>
-    <string name="settings_backup_imported_fmt">已导入 %1$d 条流水。</string>
+    <string name="settings_backup_imported_fmt">已导入 %1$d 条数据。</string>
     <string name="settings_backup_import_failed_fmt">导入失败：%1$s</string>
     <string name="settings_backup_unknown_error">未知错误</string>
 

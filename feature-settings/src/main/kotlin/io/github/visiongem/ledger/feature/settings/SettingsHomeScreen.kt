@@ -62,8 +62,8 @@ fun SettingsHomeScreen(
             BackupSection(
                 busy = state.backupBusy,
                 message = state.backupMessage,
-                onExport = viewModel::exportRecordsToUri,
-                onImport = viewModel::importRecordsFromUri,
+                onExport = viewModel::exportBackupToUri,
+                onImport = viewModel::importBackupFromUri,
             )
             HorizontalDivider()
             AboutSection(state.versionName)
@@ -79,7 +79,7 @@ private fun BackupSection(
     onImport: (android.net.Uri) -> Unit,
 ) {
     val exportLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.CreateDocument("text/csv"),
+        contract = androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/zip"),
     ) { uri -> if (uri != null) onExport(uri) }
 
     val importLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
@@ -90,13 +90,13 @@ private fun BackupSection(
         Text(text = stringResource(R.string.settings_backup_title), style = MaterialTheme.typography.titleMedium)
         io.github.visiongem.ledger.core.ui.component.ViaOutlineButton(
             text = stringResource(R.string.settings_backup_export),
-            onClick = { exportLauncher.launch("ledger-records-${java.time.LocalDate.now()}.csv") },
+            onClick = { exportLauncher.launch("ledger-backup-${java.time.LocalDate.now()}.zip") },
             enabled = !busy,
             modifier = Modifier.fillMaxWidth(),
         )
         io.github.visiongem.ledger.core.ui.component.ViaOutlineButton(
             text = stringResource(R.string.settings_backup_import),
-            onClick = { importLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/*")) },
+            onClick = { importLauncher.launch(arrayOf("application/zip", "application/x-zip-compressed", "*/*")) },
             enabled = !busy,
             modifier = Modifier.fillMaxWidth(),
         )
