@@ -5,6 +5,13 @@ plugins {
 
 android {
     namespace = "io.github.visiongem.ledger.core.data"
+
+    // Robolectric needs the merged manifest + resources to spin up an Application.
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -26,4 +33,10 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.room.testing)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.junit)
+    // Vintage engine lets JUnit Platform run the @RunWith(RobolectricTestRunner) classes
+    // alongside the existing JUnit 5 mapper/repository tests in this module.
+    testRuntimeOnly(libs.junit.vintage.engine)
 }
