@@ -4,25 +4,28 @@
 
 ## 特点
 
-- 多账户、多币种（Frankfurter 汇率）、月度预算、转账
+- 多账户、多币种（[Frankfurter](https://www.frankfurter.app/) 汇率，WorkManager 每日刷新）
+- 收入 / 支出 / 跨币种转账，支持长按删除并 Snackbar 撤销
+- 月度统计：分类饼图 + 横向柱状图，跨币种自动换算到默认币种
+- ZIP 备份与恢复（accounts / categories / records / budgets / rates 五份 CSV）
 - 完全本地、无账号系统、无云依赖
-- 中英双语，深浅主题
-- 多模块架构，`core-*` 模块设计为可独立发布的 starter kit
+- 中英双语，浅色 / 深色 / 跟随系统三种主题
+- 多模块架构，`core-*` 模块设计为可独立复用的 starter kit
 
 ## 模块结构
 
 ```
 app                   # 业务壳（Application、Activity、Routes、ScaffoldShell）
 core-base             # BaseViewModel + 通用基类
-core-utils            # BigDecimalUtil、NumberUtil、ClickUtils...
-core-extensions       # Kotlin/Compose 扩展函数
-core-network          # NetRequestManager + ApiResponse + 拦截器
+core-utils            # CurrencyFormatter、BigDecimalUtil 等工具
+core-extensions       # Kotlin / Compose 扩展函数
+core-network          # Retrofit + Moshi + ApiResponse 封装
 core-ui               # Compose UI Kit + Theme
-core-data             # Room + Repository + Domain Model + 汇率拉取
-feature-record        # 流水列表、记录详情、录入抽屉、转账
-feature-account       # 账户管理
-feature-stats         # 统计图表
-feature-settings      # 设置页（主题、语言、备份等）
+core-data             # Room + Repository + Domain Model + 汇率拉取 + 备份
+feature-record        # 流水列表 / 录入（含 Material 3 DatePicker）
+feature-account       # 账户管理（支持归档撤销）
+feature-stats         # 月度统计图表
+feature-settings      # 主题、默认币种、汇率刷新、备份导入导出
 build-logic           # Gradle convention plugins
 ```
 
@@ -33,11 +36,12 @@ build-logic           # Gradle convention plugins
 ```bash
 ./gradlew assembleDebug         # 构建 debug APK
 ./gradlew :app:installDebug     # 装到设备
-./gradlew test                  # 单元测试
+./gradlew test                  # 单元测试（JUnit 5 + Robolectric for DAO）
 ./gradlew connectedAndroidTest  # 仪器测试，含 Hilt 烟雾（需模拟器/真机）
 ```
 
-> **测试框架现状**（v0.1）：`test/` 与 `androidTest/` 源集当前均使用 JUnit 4（`junit:4.13.2`）。Spec §2.3 规划 JVM 单测迁移到 JUnit 5（`junit-jupiter` 已在 Version Catalog 预声明），将在 Plan 02 启动时连同 `useJUnitPlatform()` 配置一并落地。`androidTest/` 因 `HiltAndroidRule` / Espresso 依赖 JUnit 4 Rule API，永久保留 JUnit 4。
+测试栈：JVM 单测使用 JUnit 5 (Jupiter)，DAO 测试通过 JUnit Vintage 引擎跑 Robolectric，
+`androidTest/` 因 `HiltAndroidRule` / Espresso 依赖 JUnit 4 Rule API 保持 JUnit 4。
 
 ## 开发文档
 
@@ -50,4 +54,4 @@ build-logic           # Gradle convention plugins
 
 ## 协议
 
-Apache 2.0（待补 LICENSE 文件）
+Apache License 2.0 — 详见 [`LICENSE`](./LICENSE)。
