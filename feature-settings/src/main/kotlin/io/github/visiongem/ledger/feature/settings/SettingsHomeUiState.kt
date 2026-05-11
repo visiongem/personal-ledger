@@ -8,4 +8,6 @@ data class SettingsHomeUiState(
     val versionName: String = "0.1.0",
     val refreshingRates: Boolean = false,
     val ratesMessage: String? = null,
+    val backupBusy: Boolean = false,
+    val backupMessage: String? = null,
 )

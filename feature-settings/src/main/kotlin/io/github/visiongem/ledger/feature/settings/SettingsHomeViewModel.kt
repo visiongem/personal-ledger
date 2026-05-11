@@ -1,8 +1,12 @@
 package io.github.visiongem.ledger.feature.settings
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.visiongem.ledger.core.base.BaseViewModel
+import io.github.visiongem.ledger.core.data.backup.RecordBackupRepository
 import io.github.visiongem.ledger.core.data.domain.ThemeMode
 import io.github.visiongem.ledger.core.data.local.prefs.UserPreferencesRepository
 import io.github.visiongem.ledger.core.data.repo.AccountRepository
@@ -19,9 +23,11 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class SettingsHomeViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val accountRepository: AccountRepository,
     private val exchangeRateRepository: ExchangeRateRepository,
+    private val recordBackupRepository: RecordBackupRepository,
 ) : BaseViewModel() {
 
     private val transientState = MutableStateFlow(TransientSettingsState())
@@ -35,6 +41,8 @@ class SettingsHomeViewModel @Inject constructor(
             defaultCurrency = prefs.defaultCurrency,
             refreshingRates = transient.refreshingRates,
             ratesMessage = transient.ratesMessage,
+            backupBusy = transient.backupBusy,
+            backupMessage = transient.backupMessage,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -77,13 +85,55 @@ class SettingsHomeViewModel @Inject constructor(
         }
     }
 
-    fun clearRatesMessage() {
-        transientState.update { it.copy(ratesMessage = null) }
+    fun exportRecordsToUri(uri: Uri) {
+        viewModelScope.launch {
+            transientState.update { it.copy(backupBusy = true, backupMessage = null) }
+            val csv = recordBackupRepository.exportToCsv()
+            val ok = runCatching {
+                context.contentResolver.openOutputStream(uri)?.use { out ->
+                    out.write(csv.toByteArray(Charsets.UTF_8))
+                } ?: error("Couldn't open destination for writing")
+            }.isSuccess
+            transientState.update {
+                it.copy(
+                    backupBusy = false,
+                    backupMessage = if (ok) "Records exported." else "Export failed.",
+                )
+            }
+        }
+    }
+
+    fun importRecordsFromUri(uri: Uri) {
+        viewModelScope.launch {
+            transientState.update { it.copy(backupBusy = true, backupMessage = null) }
+            val text = runCatching {
+                context.contentResolver.openInputStream(uri)?.bufferedReader(Charsets.UTF_8)
+                    ?.use { it.readText() }
+            }.getOrNull()
+            if (text == null) {
+                transientState.update {
+                    it.copy(backupBusy = false, backupMessage = "Couldn't read source file.")
+                }
+                return@launch
+            }
+            val result = recordBackupRepository.importFromCsv(text)
+            transientState.update {
+                it.copy(
+                    backupBusy = false,
+                    backupMessage = result.fold(
+                        onSuccess = { count -> "$count records imported." },
+                        onFailure = { e -> "Import failed: ${e.message ?: "unknown"}" },
+                    ),
+                )
+            }
+        }
     }
 
     private data class TransientSettingsState(
         val refreshingRates: Boolean = false,
         val ratesMessage: String? = null,
+        val backupBusy: Boolean = false,
+        val backupMessage: String? = null,
     )
 
     private companion object {

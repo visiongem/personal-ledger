@@ -7,6 +7,8 @@ import io.github.visiongem.ledger.core.data.domain.ExchangeRate
 import io.github.visiongem.ledger.core.data.domain.ThemeMode
 import io.github.visiongem.ledger.core.data.domain.UserPreferences
 import io.github.visiongem.ledger.core.data.local.prefs.UserPreferencesRepository
+import android.content.Context
+import io.github.visiongem.ledger.core.data.backup.RecordBackupRepository
 import io.github.visiongem.ledger.core.data.repo.AccountRepository
 import io.github.visiongem.ledger.core.data.repo.ExchangeRateRepository
 import io.mockk.coEvery
@@ -30,9 +32,11 @@ import org.junit.jupiter.api.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsHomeViewModelTest {
 
+    private val context = mockk<Context>(relaxed = true)
     private val prefsRepo = mockk<UserPreferencesRepository>()
     private val accountRepo = mockk<AccountRepository>()
     private val rateRepo = mockk<ExchangeRateRepository>()
+    private val backupRepo = mockk<RecordBackupRepository>(relaxed = true)
 
     @BeforeEach
     fun setUp() {
@@ -44,7 +48,7 @@ class SettingsHomeViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun newVm() = SettingsHomeViewModel(prefsRepo, accountRepo, rateRepo)
+    private fun newVm() = SettingsHomeViewModel(context, prefsRepo, accountRepo, rateRepo, backupRepo)
 
     @Test
     fun stateMirrorsRepositoryFlow() = runTest {

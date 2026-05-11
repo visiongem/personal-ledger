@@ -50,7 +50,53 @@ fun SettingsHomeScreen(
                 onRefresh = viewModel::refreshRates,
             )
             HorizontalDivider()
+            BackupSection(
+                busy = state.backupBusy,
+                message = state.backupMessage,
+                onExport = viewModel::exportRecordsToUri,
+                onImport = viewModel::importRecordsFromUri,
+            )
+            HorizontalDivider()
             AboutSection(state.versionName)
+        }
+    }
+}
+
+@Composable
+private fun BackupSection(
+    busy: Boolean,
+    message: String?,
+    onExport: (android.net.Uri) -> Unit,
+    onImport: (android.net.Uri) -> Unit,
+) {
+    val exportLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.CreateDocument("text/csv"),
+    ) { uri -> if (uri != null) onExport(uri) }
+
+    val importLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.OpenDocument(),
+    ) { uri -> if (uri != null) onImport(uri) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(text = "Backup & restore", style = MaterialTheme.typography.titleMedium)
+        io.github.visiongem.ledger.core.ui.component.ViaOutlineButton(
+            text = "Export records (CSV)",
+            onClick = { exportLauncher.launch("ledger-records-${java.time.LocalDate.now()}.csv") },
+            enabled = !busy,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        io.github.visiongem.ledger.core.ui.component.ViaOutlineButton(
+            text = "Import records (CSV)",
+            onClick = { importLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/*")) },
+            enabled = !busy,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        message?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

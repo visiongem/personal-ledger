@@ -4,6 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.github.visiongem.ledger.core.data.backup.RecordBackupRepository
+import io.github.visiongem.ledger.core.data.backup.RecordBackupRepositoryImpl
 import io.github.visiongem.ledger.core.data.repo.AccountRepository
 import io.github.visiongem.ledger.core.data.repo.AccountRepositoryImpl
 import io.github.visiongem.ledger.core.data.repo.BudgetRepository
@@ -49,4 +51,10 @@ abstract class RepositoryBindings {
     abstract fun bindUserPreferencesRepository(
         impl: UserPreferencesRepositoryImpl,
     ): UserPreferencesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRecordBackupRepository(
+        impl: RecordBackupRepositoryImpl,
+    ): RecordBackupRepository
 }
