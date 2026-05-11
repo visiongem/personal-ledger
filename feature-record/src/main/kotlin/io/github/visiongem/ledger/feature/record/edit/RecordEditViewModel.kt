@@ -1,7 +1,9 @@
 package io.github.visiongem.ledger.feature.record.edit
 
+import android.content.Context
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.visiongem.ledger.core.base.BaseViewModel
 import io.github.visiongem.ledger.core.data.domain.Category
 import io.github.visiongem.ledger.core.data.domain.CategoryType
@@ -10,6 +12,7 @@ import io.github.visiongem.ledger.core.data.domain.RecordType
 import io.github.visiongem.ledger.core.data.repo.AccountRepository
 import io.github.visiongem.ledger.core.data.repo.CategoryRepository
 import io.github.visiongem.ledger.core.data.repo.RecordRepository
+import io.github.visiongem.ledger.feature.record.R
 import java.math.BigDecimal
 import java.time.LocalDate
 import javax.inject.Inject
@@ -22,6 +25,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class RecordEditViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val recordRepository: RecordRepository,
     accountRepository: AccountRepository,
     categoryRepository: CategoryRepository,
@@ -127,17 +131,17 @@ class RecordEditViewModel @Inject constructor(
     fun save() {
         val s = _state.value
         if (s.accountId == null) {
-            _state.update { it.copy(errorMessage = "Pick an account") }
+            _state.update { it.copy(errorMessage = context.getString(R.string.record_err_pick_account)) }
             return
         }
         val amount = runCatching { BigDecimal(s.amount) }.getOrNull()
         if (amount == null || amount.signum() <= 0) {
-            _state.update { it.copy(errorMessage = "Amount must be a positive number") }
+            _state.update { it.copy(errorMessage = context.getString(R.string.record_err_amount_positive)) }
             return
         }
         val date = runCatching { LocalDate.parse(s.dateInput) }.getOrNull()
         if (date == null) {
-            _state.update { it.copy(errorMessage = "Date must be ISO yyyy-MM-dd") }
+            _state.update { it.copy(errorMessage = context.getString(R.string.record_err_date_invalid)) }
             return
         }
 
@@ -149,7 +153,7 @@ class RecordEditViewModel @Inject constructor(
 
     private fun saveIncomeOrExpense(s: RecordEditUiState, amount: BigDecimal, date: LocalDate) {
         if (s.categoryId == null) {
-            _state.update { it.copy(errorMessage = "Pick a category") }
+            _state.update { it.copy(errorMessage = context.getString(R.string.record_err_pick_category)) }
             return
         }
         persist(
@@ -167,11 +171,11 @@ class RecordEditViewModel @Inject constructor(
 
     private fun saveTransfer(s: RecordEditUiState, amount: BigDecimal, date: LocalDate) {
         if (s.targetAccountId == null) {
-            _state.update { it.copy(errorMessage = "Pick a target account") }
+            _state.update { it.copy(errorMessage = context.getString(R.string.record_err_pick_target)) }
             return
         }
         if (s.targetAccountId == s.accountId) {
-            _state.update { it.copy(errorMessage = "Source and target must be different accounts") }
+            _state.update { it.copy(errorMessage = context.getString(R.string.record_err_same_account)) }
             return
         }
         val source = s.accountOptions.firstOrNull { it.id == s.accountId }
@@ -182,7 +186,7 @@ class RecordEditViewModel @Inject constructor(
             val parsed = runCatching { BigDecimal(s.transferAmount) }.getOrNull()
             if (parsed == null || parsed.signum() <= 0) {
                 _state.update {
-                    it.copy(errorMessage = "Destination amount must be a positive number")
+                    it.copy(errorMessage = context.getString(R.string.record_err_dest_amount_positive))
                 }
                 return
             }
@@ -207,7 +211,10 @@ class RecordEditViewModel @Inject constructor(
         launchCatching(
             onError = { error ->
                 _state.update {
-                    it.copy(saving = false, errorMessage = error.message ?: "Save failed")
+                    it.copy(
+                        saving = false,
+                        errorMessage = error.message ?: context.getString(R.string.record_err_save_failed),
+                    )
                 }
             }
         ) {

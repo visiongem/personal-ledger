@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">设置</string>
+
+    <string name="settings_theme_title">主题</string>
+    <string name="settings_theme_system">跟随系统</string>
+    <string name="settings_theme_light">浅色</string>
+    <string name="settings_theme_dark">深色</string>
+
+    <string name="settings_currency_title">默认币种</string>
+    <string name="settings_currency_hint">ISO 4217（例如 CNY、USD、EUR）</string>
+
+    <string name="settings_rates_title">汇率</string>
+    <string name="settings_rates_refresh">刷新汇率</string>
+    <string name="settings_rates_refreshing">刷新中…</string>
+    <string name="settings_rates_no_others">没有其他币种需要刷新。</string>
+    <string name="settings_rates_updated">汇率已更新。</string>
+    <string name="settings_rates_failed">刷新失败。</string>
+
+    <string name="settings_backup_title">备份与恢复</string>
+    <string name="settings_backup_export">导出流水（CSV）</string>
+    <string name="settings_backup_import">导入流水（CSV）</string>
+    <string name="settings_backup_exported">流水已导出。</string>
+    <string name="settings_backup_export_failed">导出失败。</string>
+    <string name="settings_backup_read_failed">无法读取源文件。</string>
+    <string name="settings_backup_imported_fmt">已导入 %1$d 条流水。</string>
+    <string name="settings_backup_import_failed_fmt">导入失败：%1$s</string>
+    <string name="settings_backup_unknown_error">未知错误</string>
+
+    <string name="settings_about_title">关于</string>
+    <string name="settings_version_fmt">私人账本 · v%1$s</string>
+</resources>

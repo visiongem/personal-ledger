@@ -23,8 +23,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.annotation.StringRes
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavEntry
@@ -70,15 +72,15 @@ class MainActivity : ComponentActivity() {
 
 private data class TopLevelDestination(
     val route: Any,
-    val label: String,
+    @StringRes val labelRes: Int,
     val icon: ImageVector,
 )
 
 private val topLevelDestinations = listOf(
-    TopLevelDestination(RecordListRoute, "Records", Icons.Default.Receipt),
-    TopLevelDestination(AccountListRoute, "Accounts", Icons.Default.AccountBalance),
-    TopLevelDestination(StatsHomeRoute, "Stats", Icons.Default.BarChart),
-    TopLevelDestination(SettingsHomeRoute, "Settings", Icons.Default.Settings),
+    TopLevelDestination(RecordListRoute, R.string.tab_records, Icons.Default.Receipt),
+    TopLevelDestination(AccountListRoute, R.string.tab_accounts, Icons.Default.AccountBalance),
+    TopLevelDestination(StatsHomeRoute, R.string.tab_stats, Icons.Default.BarChart),
+    TopLevelDestination(SettingsHomeRoute, R.string.tab_settings, Icons.Default.Settings),
 )
 
 @Composable
@@ -100,11 +102,12 @@ private fun LedgerApp() {
         bottomBar = {
             NavigationBar {
                 topLevelDestinations.forEachIndexed { index, dest ->
+                    val label = stringResource(dest.labelRes)
                     NavigationBarItem(
                         selected = index == selectedTabIndex,
                         onClick = { selectedTabIndex = index },
-                        icon = { Icon(dest.icon, contentDescription = dest.label) },
-                        label = { Text(dest.label) },
+                        icon = { Icon(dest.icon, contentDescription = label) },
+                        label = { Text(label) },
                     )
                 }
             }

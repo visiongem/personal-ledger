@@ -17,12 +17,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.visiongem.ledger.core.ui.component.ViaFillButton
 import io.github.visiongem.ledger.core.ui.component.ViaTopBar
+import io.github.visiongem.ledger.feature.account.R
 
 @Composable
 fun AccountEditScreen(
@@ -44,7 +46,10 @@ fun AccountEditScreen(
     Scaffold(
         topBar = {
             ViaTopBar(
-                title = if (accountId == null) "Add account" else "Edit account",
+                title = stringResource(
+                    if (accountId == null) R.string.account_edit_title_add
+                    else R.string.account_edit_title_edit
+                ),
                 onBack = onDone,
             )
         },
@@ -60,21 +65,21 @@ fun AccountEditScreen(
             OutlinedTextField(
                 value = state.name,
                 onValueChange = viewModel::onNameChange,
-                label = { Text("Name") },
+                label = { Text(stringResource(R.string.account_edit_name_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
             OutlinedTextField(
                 value = state.currencyCode,
                 onValueChange = viewModel::onCurrencyChange,
-                label = { Text("Currency (ISO 4217, 3 letters)") },
+                label = { Text(stringResource(R.string.account_edit_currency_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
             OutlinedTextField(
                 value = state.openingBalance,
                 onValueChange = viewModel::onOpeningBalanceChange,
-                label = { Text("Opening balance") },
+                label = { Text(stringResource(R.string.account_edit_balance_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -84,7 +89,7 @@ fun AccountEditScreen(
             }
             Spacer(modifier = Modifier.fillMaxWidth())
             ViaFillButton(
-                text = "Save",
+                text = stringResource(R.string.account_edit_save),
                 onClick = viewModel::save,
                 modifier = Modifier.fillMaxWidth(),
                 loading = state.saving,

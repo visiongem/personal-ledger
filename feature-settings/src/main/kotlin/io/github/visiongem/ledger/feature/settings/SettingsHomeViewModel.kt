@@ -71,7 +71,7 @@ class SettingsHomeViewModel @Inject constructor(
                 .filter { it != defaultCurrency }
                 .distinct()
             if (others.isEmpty()) {
-                transientState.update { it.copy(ratesMessage = "No other currencies to refresh.") }
+                transientState.update { it.copy(ratesMessage = context.getString(R.string.settings_rates_no_others)) }
                 return@launch
             }
             transientState.update { it.copy(refreshingRates = true, ratesMessage = null) }
@@ -79,7 +79,10 @@ class SettingsHomeViewModel @Inject constructor(
             transientState.update {
                 it.copy(
                     refreshingRates = false,
-                    ratesMessage = if (result.isSuccess) "Rates updated." else "Refresh failed.",
+                    ratesMessage = context.getString(
+                        if (result.isSuccess) R.string.settings_rates_updated
+                        else R.string.settings_rates_failed
+                    ),
                 )
             }
         }
@@ -97,7 +100,10 @@ class SettingsHomeViewModel @Inject constructor(
             transientState.update {
                 it.copy(
                     backupBusy = false,
-                    backupMessage = if (ok) "Records exported." else "Export failed.",
+                    backupMessage = context.getString(
+                        if (ok) R.string.settings_backup_exported
+                        else R.string.settings_backup_export_failed
+                    ),
                 )
             }
         }
@@ -112,7 +118,10 @@ class SettingsHomeViewModel @Inject constructor(
             }.getOrNull()
             if (text == null) {
                 transientState.update {
-                    it.copy(backupBusy = false, backupMessage = "Couldn't read source file.")
+                    it.copy(
+                        backupBusy = false,
+                        backupMessage = context.getString(R.string.settings_backup_read_failed),
+                    )
                 }
                 return@launch
             }
@@ -121,8 +130,13 @@ class SettingsHomeViewModel @Inject constructor(
                 it.copy(
                     backupBusy = false,
                     backupMessage = result.fold(
-                        onSuccess = { count -> "$count records imported." },
-                        onFailure = { e -> "Import failed: ${e.message ?: "unknown"}" },
+                        onSuccess = { count ->
+                            context.getString(R.string.settings_backup_imported_fmt, count)
+                        },
+                        onFailure = { e ->
+                            val reason = e.message ?: context.getString(R.string.settings_backup_unknown_error)
+                            context.getString(R.string.settings_backup_import_failed_fmt, reason)
+                        },
                     ),
                 )
             }

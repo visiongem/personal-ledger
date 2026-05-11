@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="record_list_title">Records</string>
+    <string name="record_list_empty">No records yet. Tap + to add your first one.</string>
+    <string name="record_list_add_cd">Add record</string>
+    <string name="record_list_no_category">(no category)</string>
+    <string name="record_list_unknown_account">Unknown</string>
+
+    <string name="record_edit_title_add">Add record</string>
+    <string name="record_edit_title_edit">Edit record</string>
+    <string name="record_type_expense">Expense</string>
+    <string name="record_type_income">Income</string>
+    <string name="record_type_transfer">Transfer</string>
+    <string name="record_account_label">Account</string>
+    <string name="record_from_account">From account</string>
+    <string name="record_to_account">To account</string>
+    <string name="record_category">Category</string>
+    <string name="record_amount">Amount</string>
+    <string name="record_amount_source">Amount (source)</string>
+    <string name="record_amount_destination_fmt">Amount (destination, %1$s)</string>
+    <string name="record_date_label">Date (yyyy-MM-dd)</string>
+    <string name="record_note_label">Note (optional)</string>
+    <string name="record_save">Save</string>
+
+    <string name="record_err_pick_account">Pick an account</string>
+    <string name="record_err_pick_target">Pick a target account</string>
+    <string name="record_err_same_account">Source and target must be different accounts</string>
+    <string name="record_err_pick_category">Pick a category</string>
+    <string name="record_err_amount_positive">Amount must be a positive number</string>
+    <string name="record_err_dest_amount_positive">Destination amount must be a positive number</string>
+    <string name="record_err_date_invalid">Date must be ISO yyyy-MM-dd</string>
+    <string name="record_err_save_failed">Save failed</string>
+</resources>

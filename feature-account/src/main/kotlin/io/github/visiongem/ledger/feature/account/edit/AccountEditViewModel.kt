@@ -1,9 +1,12 @@
 package io.github.visiongem.ledger.feature.account.edit
 
+import android.content.Context
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.visiongem.ledger.core.base.BaseViewModel
 import io.github.visiongem.ledger.core.data.domain.Account
 import io.github.visiongem.ledger.core.data.repo.AccountRepository
+import io.github.visiongem.ledger.feature.account.R
 import java.math.BigDecimal
 import java.time.Instant
 import javax.inject.Inject
@@ -15,6 +18,7 @@ import kotlinx.coroutines.flow.update
 
 @HiltViewModel
 class AccountEditViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val accountRepository: AccountRepository,
 ) : BaseViewModel() {
 
@@ -53,25 +57,28 @@ class AccountEditViewModel @Inject constructor(
         val current = _state.value
         val trimmedName = current.name.trim()
         if (trimmedName.isEmpty()) {
-            _state.update { it.copy(errorMessage = "Name is required") }
+            _state.update { it.copy(errorMessage = context.getString(R.string.account_err_name_required)) }
             return
         }
         if (current.currencyCode.length != ISO_CURRENCY_LENGTH) {
-            _state.update { it.copy(errorMessage = "Currency must be 3 letters (ISO 4217)") }
+            _state.update { it.copy(errorMessage = context.getString(R.string.account_err_currency_invalid)) }
             return
         }
         val balance = runCatching {
             BigDecimal(current.openingBalance.ifBlank { "0" })
         }.getOrNull()
         if (balance == null) {
-            _state.update { it.copy(errorMessage = "Opening balance is not a valid number") }
+            _state.update { it.copy(errorMessage = context.getString(R.string.account_err_balance_invalid)) }
             return
         }
 
         launchCatching(
             onError = { error ->
                 _state.update {
-                    it.copy(saving = false, errorMessage = error.message ?: "Save failed")
+                    it.copy(
+                        saving = false,
+                        errorMessage = error.message ?: context.getString(R.string.account_err_save_failed),
+                    )
                 }
             }
         ) {

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="stats_title_fmt">Statistics · %1$s</string>
+    <string name="stats_warn_unconverted_fmt">%1$d record(s) skipped — exchange rate missing. Refresh from Settings.</string>
+    <string name="stats_income">Income</string>
+    <string name="stats_expense">Expense</string>
+    <string name="stats_net">Net</string>
+    <string name="stats_breakdown_title">Expense breakdown</string>
+    <string name="stats_breakdown_empty">No expenses this month yet.</string>
+    <string name="stats_unknown_category">Unknown</string>
+</resources>

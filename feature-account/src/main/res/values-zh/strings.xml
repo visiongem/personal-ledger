@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="account_list_title">账户</string>
+    <string name="account_list_empty">还没有账户，点击 + 添加你的第一个账户。</string>
+    <string name="account_list_add_cd">添加账户</string>
+
+    <string name="account_edit_title_add">添加账户</string>
+    <string name="account_edit_title_edit">编辑账户</string>
+    <string name="account_edit_name_label">名称</string>
+    <string name="account_edit_currency_label">币种（ISO 4217 三位字母）</string>
+    <string name="account_edit_balance_label">初始余额</string>
+    <string name="account_edit_save">保存</string>
+
+    <string name="account_err_name_required">请输入名称</string>
+    <string name="account_err_currency_invalid">币种必须是 3 位 ISO 4217 字母</string>
+    <string name="account_err_balance_invalid">初始余额不是有效数字</string>
+    <string name="account_err_save_failed">保存失败</string>
+</resources>

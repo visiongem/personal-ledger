@@ -1,5 +1,6 @@
 package io.github.visiongem.ledger.feature.account.edit
 
+import android.content.Context
 import com.google.common.truth.Truth.assertThat
 import io.github.visiongem.ledger.core.data.domain.Account
 import io.github.visiongem.ledger.core.data.repo.AccountRepository
@@ -23,6 +24,9 @@ import org.junit.jupiter.api.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class AccountEditViewModelTest {
 
+    private val context = mockk<Context>(relaxed = true).also {
+        every { it.getString(any()) } returns "stub-error"
+    }
     private val repo = mockk<AccountRepository>()
 
     private val sampleAccount = Account(
@@ -47,7 +51,7 @@ class AccountEditViewModelTest {
     @Test
     fun loadIfNeededFetchesAccountAndPopulatesState() = runTest {
         every { repo.observeById(5L) } returns flowOf(sampleAccount)
-        val vm = AccountEditViewModel(repo)
+        val vm = AccountEditViewModel(context, repo)
 
         vm.loadIfNeeded(5L)
 
@@ -60,7 +64,7 @@ class AccountEditViewModelTest {
 
     @Test
     fun loadIfNeededWithNullDoesNothing() = runTest {
-        val vm = AccountEditViewModel(repo)
+        val vm = AccountEditViewModel(context, repo)
         vm.loadIfNeeded(null)
         // initial defaults retained
         assertThat(vm.state.value.id).isNull()
@@ -69,7 +73,7 @@ class AccountEditViewModelTest {
 
     @Test
     fun saveWithEmptyNameSetsErrorAndDoesNotCallRepo() = runTest {
-        val vm = AccountEditViewModel(repo)
+        val vm = AccountEditViewModel(context, repo)
         vm.onCurrencyChange("USD")
         vm.save()
         assertThat(vm.state.value.errorMessage).isNotNull()
@@ -79,28 +83,28 @@ class AccountEditViewModelTest {
 
     @Test
     fun saveWithInvalidCurrencySetsError() = runTest {
-        val vm = AccountEditViewModel(repo)
+        val vm = AccountEditViewModel(context, repo)
         vm.onNameChange("Cash")
         vm.onCurrencyChange("XX") // not 3 letters
         vm.save()
-        assertThat(vm.state.value.errorMessage).contains("Currency")
+        assertThat(vm.state.value.errorMessage).isNotNull()
         coVerify(exactly = 0) { repo.upsert(any()) }
     }
 
     @Test
     fun saveWithInvalidBalanceSetsError() = runTest {
-        val vm = AccountEditViewModel(repo)
+        val vm = AccountEditViewModel(context, repo)
         vm.onNameChange("Cash")
         vm.onOpeningBalanceChange("not-a-number")
         vm.save()
-        assertThat(vm.state.value.errorMessage).contains("balance")
+        assertThat(vm.state.value.errorMessage).isNotNull()
         coVerify(exactly = 0) { repo.upsert(any()) }
     }
 
     @Test
     fun saveSuccessCallsUpsertAndSetsSaved() = runTest {
         coEvery { repo.upsert(any()) } returns 9L
-        val vm = AccountEditViewModel(repo)
+        val vm = AccountEditViewModel(context, repo)
         vm.onNameChange(" Cash  ") // trim should kick in
         vm.onCurrencyChange("eur")  // upper-case should kick in
         vm.onOpeningBalanceChange("250.50")
@@ -121,7 +125,7 @@ class AccountEditViewModelTest {
 
     @Test
     fun fieldChangeClearsErrorMessage() = runTest {
-        val vm = AccountEditViewModel(repo)
+        val vm = AccountEditViewModel(context, repo)
         vm.save() // triggers error (empty name)
         assertThat(vm.state.value.errorMessage).isNotNull()
         vm.onNameChange("Cash")

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">私人账本</string>
+
+    <!-- Bottom navigation tabs -->
+    <string name="tab_records">流水</string>
+    <string name="tab_accounts">账户</string>
+    <string name="tab_stats">统计</string>
+    <string name="tab_settings">设置</string>
+</resources>

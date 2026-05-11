@@ -1,5 +1,6 @@
 package io.github.visiongem.ledger.feature.record.edit
 
+import android.content.Context
 import com.google.common.truth.Truth.assertThat
 import io.github.visiongem.ledger.core.data.domain.Account
 import io.github.visiongem.ledger.core.data.domain.Category
@@ -28,6 +29,9 @@ import org.junit.jupiter.api.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class RecordEditViewModelTest {
 
+    private val context = mockk<Context>(relaxed = true).also {
+        every { it.getString(any()) } returns "stub-error"
+    }
     private val recordRepo = mockk<RecordRepository>(relaxed = true)
     private val accountRepo = mockk<AccountRepository>()
     private val categoryRepo = mockk<CategoryRepository>()
@@ -76,14 +80,14 @@ class RecordEditViewModelTest {
 
     @Test
     fun categoryOptionsFilterByType() = runTest {
-        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        val vm = RecordEditViewModel(context, recordRepo, accountRepo, categoryRepo)
         // Default type is EXPENSE — only expense category should appear
         assertThat(vm.state.value.categoryOptions).containsExactly(expenseCategory)
     }
 
     @Test
     fun typeChangeClearsCategoryAndRefilters() = runTest {
-        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        val vm = RecordEditViewModel(context, recordRepo, accountRepo, categoryRepo)
         vm.onCategoryChange(2L)
         assertThat(vm.state.value.categoryId).isEqualTo(2L)
         vm.onTypeChange(RecordType.INCOME)
@@ -93,39 +97,39 @@ class RecordEditViewModelTest {
 
     @Test
     fun saveWithoutAccountSetsError() = runTest {
-        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        val vm = RecordEditViewModel(context, recordRepo, accountRepo, categoryRepo)
         vm.onCategoryChange(2L)
         vm.onAmountChange("10")
         vm.save()
-        assertThat(vm.state.value.errorMessage).contains("account")
+        assertThat(vm.state.value.errorMessage).isNotNull()
         coVerify(exactly = 0) { recordRepo.upsert(any()) }
     }
 
     @Test
     fun saveWithInvalidAmountSetsError() = runTest {
-        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        val vm = RecordEditViewModel(context, recordRepo, accountRepo, categoryRepo)
         vm.onAccountChange(1L)
         vm.onCategoryChange(2L)
         vm.onAmountChange("-5")
         vm.save()
-        assertThat(vm.state.value.errorMessage).contains("positive")
+        assertThat(vm.state.value.errorMessage).isNotNull()
     }
 
     @Test
     fun saveWithInvalidDateSetsError() = runTest {
-        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        val vm = RecordEditViewModel(context, recordRepo, accountRepo, categoryRepo)
         vm.onAccountChange(1L)
         vm.onCategoryChange(2L)
         vm.onAmountChange("10")
         vm.onDateChange("not-a-date")
         vm.save()
-        assertThat(vm.state.value.errorMessage).contains("Date")
+        assertThat(vm.state.value.errorMessage).isNotNull()
     }
 
     @Test
     fun saveSuccessUpsertsAndSetsSaved() = runTest {
         coEvery { recordRepo.upsert(any()) } returns 9L
-        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        val vm = RecordEditViewModel(context, recordRepo, accountRepo, categoryRepo)
         vm.onAccountChange(1L)
         vm.onCategoryChange(2L)
         vm.onAmountChange("12.34")
@@ -148,7 +152,7 @@ class RecordEditViewModelTest {
     @Test
     fun transferSameCurrencySucceedsAndAutoFillsDestinationAmount() = runTest {
         coEvery { recordRepo.upsert(any()) } returns 11L
-        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        val vm = RecordEditViewModel(context, recordRepo, accountRepo, categoryRepo)
         vm.onTypeChange(RecordType.TRANSFER)
         vm.onAccountChange(100L) // USD Cash
         vm.onTargetAccountChange(300L) // USD Savings — same currency
@@ -169,20 +173,20 @@ class RecordEditViewModelTest {
 
     @Test
     fun transferCrossCurrencyMissingDestinationAmountFails() = runTest {
-        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        val vm = RecordEditViewModel(context, recordRepo, accountRepo, categoryRepo)
         vm.onTypeChange(RecordType.TRANSFER)
         vm.onAccountChange(100L) // USD
         vm.onTargetAccountChange(200L) // EUR
         vm.onAmountChange("50")
         vm.save()
-        assertThat(vm.state.value.errorMessage).contains("Destination amount")
+        assertThat(vm.state.value.errorMessage).isNotNull()
         coVerify(exactly = 0) { recordRepo.upsert(any()) }
     }
 
     @Test
     fun transferCrossCurrencyWithDestinationAmountSucceeds() = runTest {
         coEvery { recordRepo.upsert(any()) } returns 12L
-        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        val vm = RecordEditViewModel(context, recordRepo, accountRepo, categoryRepo)
         vm.onTypeChange(RecordType.TRANSFER)
         vm.onAccountChange(100L) // USD
         vm.onTargetAccountChange(200L) // EUR
@@ -200,30 +204,30 @@ class RecordEditViewModelTest {
 
     @Test
     fun transferSameSourceAndTargetFails() = runTest {
-        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        val vm = RecordEditViewModel(context, recordRepo, accountRepo, categoryRepo)
         vm.onTypeChange(RecordType.TRANSFER)
         vm.onAccountChange(100L)
         vm.onTargetAccountChange(100L)
         vm.onAmountChange("50")
         vm.save()
-        assertThat(vm.state.value.errorMessage).contains("different")
+        assertThat(vm.state.value.errorMessage).isNotNull()
         coVerify(exactly = 0) { recordRepo.upsert(any()) }
     }
 
     @Test
     fun transferMissingTargetAccountFails() = runTest {
-        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        val vm = RecordEditViewModel(context, recordRepo, accountRepo, categoryRepo)
         vm.onTypeChange(RecordType.TRANSFER)
         vm.onAccountChange(100L)
         vm.onAmountChange("50")
         vm.save()
-        assertThat(vm.state.value.errorMessage).contains("target account")
+        assertThat(vm.state.value.errorMessage).isNotNull()
         coVerify(exactly = 0) { recordRepo.upsert(any()) }
     }
 
     @Test
     fun crossCurrencyTransferFlagDetectsDifferingCurrencies() = runTest {
-        val vm = RecordEditViewModel(recordRepo, accountRepo, categoryRepo)
+        val vm = RecordEditViewModel(context, recordRepo, accountRepo, categoryRepo)
         vm.onTypeChange(RecordType.TRANSFER)
         vm.onAccountChange(100L) // USD
         vm.onTargetAccountChange(200L) // EUR

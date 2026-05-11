@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="stats_title_fmt">统计 · %1$s</string>
+    <string name="stats_warn_unconverted_fmt">%1$d 条记录被跳过——缺少汇率。请到设置刷新。</string>
+    <string name="stats_income">收入</string>
+    <string name="stats_expense">支出</string>
+    <string name="stats_net">净额</string>
+    <string name="stats_breakdown_title">支出分类</string>
+    <string name="stats_breakdown_empty">本月还没有支出。</string>
+    <string name="stats_unknown_category">未知</string>
+</resources>

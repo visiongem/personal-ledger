@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,7 +34,7 @@ fun SettingsHomeScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = { ViaTopBar(title = "Settings") },
+        topBar = { ViaTopBar(title = stringResource(R.string.settings_title)) },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -81,15 +82,15 @@ private fun BackupSection(
     ) { uri -> if (uri != null) onImport(uri) }
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(text = "Backup & restore", style = MaterialTheme.typography.titleMedium)
+        Text(text = stringResource(R.string.settings_backup_title), style = MaterialTheme.typography.titleMedium)
         io.github.visiongem.ledger.core.ui.component.ViaOutlineButton(
-            text = "Export records (CSV)",
+            text = stringResource(R.string.settings_backup_export),
             onClick = { exportLauncher.launch("ledger-records-${java.time.LocalDate.now()}.csv") },
             enabled = !busy,
             modifier = Modifier.fillMaxWidth(),
         )
         io.github.visiongem.ledger.core.ui.component.ViaOutlineButton(
-            text = "Import records (CSV)",
+            text = stringResource(R.string.settings_backup_import),
             onClick = { importLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/*")) },
             enabled = !busy,
             modifier = Modifier.fillMaxWidth(),
@@ -111,9 +112,12 @@ private fun RatesSection(
     onRefresh: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(text = "Exchange rates", style = MaterialTheme.typography.titleMedium)
+        Text(text = stringResource(R.string.settings_rates_title), style = MaterialTheme.typography.titleMedium)
         io.github.visiongem.ledger.core.ui.component.ViaOutlineButton(
-            text = if (refreshing) "Refreshing…" else "Refresh exchange rates",
+            text = stringResource(
+                if (refreshing) R.string.settings_rates_refreshing
+                else R.string.settings_rates_refresh
+            ),
             onClick = onRefresh,
             enabled = !refreshing,
             modifier = Modifier.fillMaxWidth(),
@@ -131,7 +135,7 @@ private fun RatesSection(
 @Composable
 private fun ThemeSection(selected: ThemeMode, onChange: (ThemeMode) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(text = "Theme", style = MaterialTheme.typography.titleMedium)
+        Text(text = stringResource(R.string.settings_theme_title), style = MaterialTheme.typography.titleMedium)
         ThemeMode.entries.forEach { mode ->
             Row(
                 modifier = Modifier
@@ -146,7 +150,7 @@ private fun ThemeSection(selected: ThemeMode, onChange: (ThemeMode) -> Unit) {
             ) {
                 RadioButton(selected = mode == selected, onClick = { onChange(mode) })
                 Text(
-                    text = mode.label(),
+                    text = stringResource(mode.labelRes()),
                     modifier = Modifier.padding(start = 8.dp),
                 )
             }
@@ -154,20 +158,20 @@ private fun ThemeSection(selected: ThemeMode, onChange: (ThemeMode) -> Unit) {
     }
 }
 
-private fun ThemeMode.label(): String = when (this) {
-    ThemeMode.SYSTEM -> "Follow system"
-    ThemeMode.LIGHT -> "Light"
-    ThemeMode.DARK -> "Dark"
+private fun ThemeMode.labelRes(): Int = when (this) {
+    ThemeMode.SYSTEM -> R.string.settings_theme_system
+    ThemeMode.LIGHT -> R.string.settings_theme_light
+    ThemeMode.DARK -> R.string.settings_theme_dark
 }
 
 @Composable
 private fun CurrencySection(current: String, onChange: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(text = "Default currency", style = MaterialTheme.typography.titleMedium)
+        Text(text = stringResource(R.string.settings_currency_title), style = MaterialTheme.typography.titleMedium)
         OutlinedTextField(
             value = current,
             onValueChange = onChange,
-            label = { Text("ISO 4217 (e.g. USD, CNY, EUR)") },
+            label = { Text(stringResource(R.string.settings_currency_hint)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
         )
@@ -177,9 +181,9 @@ private fun CurrencySection(current: String, onChange: (String) -> Unit) {
 @Composable
 private fun AboutSection(version: String) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(text = "About", style = MaterialTheme.typography.titleMedium)
+        Text(text = stringResource(R.string.settings_about_title), style = MaterialTheme.typography.titleMedium)
         Text(
-            text = "Personal Ledger · v$version",
+            text = stringResource(R.string.settings_version_fmt, version),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="record_list_title">流水</string>
+    <string name="record_list_empty">还没有流水，点击 + 添加你的第一条。</string>
+    <string name="record_list_add_cd">添加流水</string>
+    <string name="record_list_no_category">（无分类）</string>
+    <string name="record_list_unknown_account">未知</string>
+
+    <string name="record_edit_title_add">添加流水</string>
+    <string name="record_edit_title_edit">编辑流水</string>
+    <string name="record_type_expense">支出</string>
+    <string name="record_type_income">收入</string>
+    <string name="record_type_transfer">转账</string>
+    <string name="record_account_label">账户</string>
+    <string name="record_from_account">源账户</string>
+    <string name="record_to_account">目标账户</string>
+    <string name="record_category">分类</string>
+    <string name="record_amount">金额</string>
+    <string name="record_amount_source">金额（源）</string>
+    <string name="record_amount_destination_fmt">金额（目标，%1$s）</string>
+    <string name="record_date_label">日期 (yyyy-MM-dd)</string>
+    <string name="record_note_label">备注（可选）</string>
+    <string name="record_save">保存</string>
+
+    <string name="record_err_pick_account">请选择账户</string>
+    <string name="record_err_pick_target">请选择目标账户</string>
+    <string name="record_err_same_account">源账户和目标账户必须不同</string>
+    <string name="record_err_pick_category">请选择分类</string>
+    <string name="record_err_amount_positive">金额必须为正数</string>
+    <string name="record_err_dest_amount_positive">目标金额必须为正数</string>
+    <string name="record_err_date_invalid">日期格式必须为 yyyy-MM-dd</string>
+    <string name="record_err_save_failed">保存失败</string>
+</resources>

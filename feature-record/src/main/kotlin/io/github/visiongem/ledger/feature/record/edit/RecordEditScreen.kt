@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,6 +35,7 @@ import io.github.visiongem.ledger.core.ui.component.ViaBottomSelector
 import io.github.visiongem.ledger.core.ui.component.ViaFillButton
 import io.github.visiongem.ledger.core.ui.component.ViaSelectorField
 import io.github.visiongem.ledger.core.ui.component.ViaTopBar
+import io.github.visiongem.ledger.feature.record.R
 
 @Composable
 fun RecordEditScreen(
@@ -50,7 +52,10 @@ fun RecordEditScreen(
     Scaffold(
         topBar = {
             ViaTopBar(
-                title = if (recordId == null) "Add record" else "Edit record",
+                title = stringResource(
+                    if (recordId == null) R.string.record_edit_title_add
+                    else R.string.record_edit_title_edit
+                ),
                 onBack = onDone,
             )
         },
@@ -65,14 +70,17 @@ fun RecordEditScreen(
         ) {
             TypeSegmentedButtons(state.type, viewModel::onTypeChange)
             AccountPicker(
-                label = if (state.type == RecordType.TRANSFER) "From account" else "Account",
+                label = stringResource(
+                    if (state.type == RecordType.TRANSFER) R.string.record_from_account
+                    else R.string.record_account_label
+                ),
                 accounts = state.accountOptions,
                 selectedId = state.accountId,
                 onSelect = viewModel::onAccountChange,
             )
             if (state.type == RecordType.TRANSFER) {
                 AccountPicker(
-                    label = "To account",
+                    label = stringResource(R.string.record_to_account),
                     accounts = state.accountOptions.filter { it.id != state.accountId },
                     selectedId = state.targetAccountId,
                     onSelect = viewModel::onTargetAccountChange,
@@ -89,7 +97,10 @@ fun RecordEditScreen(
                 onValueChange = viewModel::onAmountChange,
                 label = {
                     Text(
-                        if (state.type == RecordType.TRANSFER) "Amount (source)" else "Amount"
+                        stringResource(
+                            if (state.type == RecordType.TRANSFER) R.string.record_amount_source
+                            else R.string.record_amount
+                        )
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -104,7 +115,9 @@ fun RecordEditScreen(
                 OutlinedTextField(
                     value = state.transferAmount,
                     onValueChange = viewModel::onTransferAmountChange,
-                    label = { Text("Amount (destination, $targetCurrency)") },
+                    label = {
+                        Text(stringResource(R.string.record_amount_destination_fmt, targetCurrency))
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -113,14 +126,14 @@ fun RecordEditScreen(
             OutlinedTextField(
                 value = state.dateInput,
                 onValueChange = viewModel::onDateChange,
-                label = { Text("Date (yyyy-MM-dd)") },
+                label = { Text(stringResource(R.string.record_date_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
             OutlinedTextField(
                 value = state.note,
                 onValueChange = viewModel::onNoteChange,
-                label = { Text("Note (optional)") },
+                label = { Text(stringResource(R.string.record_note_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = false,
             )
@@ -128,7 +141,7 @@ fun RecordEditScreen(
                 Text(message, color = MaterialTheme.colorScheme.error)
             }
             ViaFillButton(
-                text = "Save",
+                text = stringResource(R.string.record_save),
                 onClick = viewModel::save,
                 modifier = Modifier.fillMaxWidth(),
                 loading = state.saving,
@@ -152,11 +165,13 @@ private fun TypeSegmentedButtons(
                 shape = SegmentedButtonDefaults.itemShape(index, visibleTypes.size),
             ) {
                 Text(
-                    when (type) {
-                        RecordType.EXPENSE -> "Expense"
-                        RecordType.INCOME -> "Income"
-                        RecordType.TRANSFER -> "Transfer"
-                    }
+                    stringResource(
+                        when (type) {
+                            RecordType.EXPENSE -> R.string.record_type_expense
+                            RecordType.INCOME -> R.string.record_type_income
+                            RecordType.TRANSFER -> R.string.record_type_transfer
+                        }
+                    )
                 )
             }
         }
@@ -194,16 +209,17 @@ private fun CategoryPicker(
     selectedId: Long?,
     onSelect: (Long) -> Unit,
 ) {
+    val label = stringResource(R.string.record_category)
     var sheetOpen by remember { mutableStateOf(false) }
     val selected = categories.firstOrNull { it.id == selectedId }
     ViaSelectorField(
-        label = "Category",
+        label = label,
         valueLabel = selected?.name,
         onClick = { sheetOpen = true },
     )
     if (sheetOpen) {
         ViaBottomSelector(
-            title = "Category",
+            title = label,
             items = categories,
             itemLabel = { it.name },
             onSelect = { onSelect(it.id) },

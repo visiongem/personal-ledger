@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Settings</string>
+
+    <string name="settings_theme_title">Theme</string>
+    <string name="settings_theme_system">Follow system</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+
+    <string name="settings_currency_title">Default currency</string>
+    <string name="settings_currency_hint">ISO 4217 (e.g. USD, CNY, EUR)</string>
+
+    <string name="settings_rates_title">Exchange rates</string>
+    <string name="settings_rates_refresh">Refresh exchange rates</string>
+    <string name="settings_rates_refreshing">Refreshing…</string>
+    <string name="settings_rates_no_others">No other currencies to refresh.</string>
+    <string name="settings_rates_updated">Rates updated.</string>
+    <string name="settings_rates_failed">Refresh failed.</string>
+
+    <string name="settings_backup_title">Backup &amp; restore</string>
+    <string name="settings_backup_export">Export records (CSV)</string>
+    <string name="settings_backup_import">Import records (CSV)</string>
+    <string name="settings_backup_exported">Records exported.</string>
+    <string name="settings_backup_export_failed">Export failed.</string>
+    <string name="settings_backup_read_failed">Couldn\'t read source file.</string>
+    <string name="settings_backup_imported_fmt">%1$d records imported.</string>
+    <string name="settings_backup_import_failed_fmt">Import failed: %1$s</string>
+    <string name="settings_backup_unknown_error">unknown</string>
+
+    <string name="settings_about_title">About</string>
+    <string name="settings_version_fmt">Personal Ledger · v%1$s</string>
+</resources>

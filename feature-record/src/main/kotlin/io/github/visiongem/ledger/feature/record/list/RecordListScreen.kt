@@ -16,12 +16,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.visiongem.ledger.core.data.domain.RecordType
 import io.github.visiongem.ledger.core.ui.component.ViaEmptyPage
 import io.github.visiongem.ledger.core.ui.component.ViaLoadingPage
 import io.github.visiongem.ledger.core.ui.component.ViaTopBar
+import io.github.visiongem.ledger.feature.record.R
 
 @Composable
 fun RecordListScreen(
@@ -30,12 +32,14 @@ fun RecordListScreen(
     viewModel: RecordListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val noCategoryLabel = stringResource(R.string.record_list_no_category)
+    val unknownAccountLabel = stringResource(R.string.record_list_unknown_account)
 
     Scaffold(
-        topBar = { ViaTopBar(title = "Records") },
+        topBar = { ViaTopBar(title = stringResource(R.string.record_list_title)) },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddClick) {
-                Icon(Icons.Default.Add, contentDescription = "Add record")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.record_list_add_cd))
             }
         },
     ) { paddingValues ->
@@ -47,7 +51,7 @@ fun RecordListScreen(
             when {
                 state.loading -> ViaLoadingPage()
                 state.rows.isEmpty() -> ViaEmptyPage(
-                    message = "No records yet. Tap + to add your first one.",
+                    message = stringResource(R.string.record_list_empty),
                 )
                 else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(state.rows, key = { it.record.id }) { row ->
@@ -62,10 +66,10 @@ fun RecordListScreen(
                             },
                             supportingContent = {
                                 val text = if (row.record.type == RecordType.TRANSFER) {
-                                    val target = row.targetAccountName ?: "Unknown"
+                                    val target = row.targetAccountName ?: unknownAccountLabel
                                     "${row.accountName} → $target · ${row.record.occurredOn}"
                                 } else {
-                                    val cat = row.categoryName ?: "(no category)"
+                                    val cat = row.categoryName ?: noCategoryLabel
                                     "$cat · ${row.accountName} · ${row.record.occurredOn}"
                                 }
                                 Text(text)

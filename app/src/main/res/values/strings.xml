@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Personal Ledger</string>
-    <string name="hello_ledger">Hello, Ledger</string>
+
+    <!-- Bottom navigation tabs -->
+    <string name="tab_records">Records</string>
+    <string name="tab_accounts">Accounts</string>
+    <string name="tab_stats">Stats</string>
+    <string name="tab_settings">Settings</string>
 </resources>

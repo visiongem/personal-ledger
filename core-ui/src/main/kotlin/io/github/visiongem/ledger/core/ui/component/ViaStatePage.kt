@@ -13,9 +13,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.visiongem.ledger.core.ui.R
 import io.github.visiongem.ledger.core.ui.theme.LedgerTheme
 
 private val StatePagePadding = 32.dp
@@ -74,7 +76,7 @@ fun ViaErrorPage(
         )
         if (onRetry != null) {
             Spacer(modifier = Modifier.height(StatePageGap))
-            ViaOutlineButton(text = "Retry", onClick = onRetry)
+            ViaOutlineButton(text = stringResource(R.string.core_ui_retry), onClick = onRetry)
         }
     }
 }

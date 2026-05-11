@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="account_list_title">Accounts</string>
+    <string name="account_list_empty">No accounts yet. Tap + to add your first account.</string>
+    <string name="account_list_add_cd">Add account</string>
+
+    <string name="account_edit_title_add">Add account</string>
+    <string name="account_edit_title_edit">Edit account</string>
+    <string name="account_edit_name_label">Name</string>
+    <string name="account_edit_currency_label">Currency (ISO 4217, 3 letters)</string>
+    <string name="account_edit_balance_label">Opening balance</string>
+    <string name="account_edit_save">Save</string>
+
+    <string name="account_err_name_required">Name is required</string>
+    <string name="account_err_currency_invalid">Currency must be 3 letters (ISO 4217)</string>
+    <string name="account_err_balance_invalid">Opening balance is not a valid number</string>
+    <string name="account_err_save_failed">Save failed</string>
+</resources>

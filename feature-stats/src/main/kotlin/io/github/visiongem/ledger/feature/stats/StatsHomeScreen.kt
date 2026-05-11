@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -24,6 +25,7 @@ import io.github.visiongem.ledger.core.ui.component.BarEntry
 import io.github.visiongem.ledger.core.ui.component.ViaHorizontalBarChart
 import io.github.visiongem.ledger.core.ui.component.ViaLoadingPage
 import io.github.visiongem.ledger.core.ui.component.ViaTopBar
+import io.github.visiongem.ledger.feature.stats.R
 import java.math.BigDecimal
 
 @Composable
@@ -33,7 +35,7 @@ fun StatsHomeScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = { ViaTopBar(title = "Statistics · ${state.month}") },
+        topBar = { ViaTopBar(title = stringResource(R.string.stats_title_fmt, state.month.toString())) },
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -52,7 +54,7 @@ fun StatsHomeScreen(
                 ) {
                     if (state.unconvertedCount > 0) {
                         Text(
-                            text = "${state.unconvertedCount} record(s) skipped — exchange rate missing. Refresh from Settings.",
+                            text = stringResource(R.string.stats_warn_unconverted_fmt, state.unconvertedCount),
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall,
                         )
@@ -60,12 +62,12 @@ fun StatsHomeScreen(
                     SummaryCards(state)
                     HorizontalDivider()
                     Text(
-                        text = "Expense breakdown",
+                        text = stringResource(R.string.stats_breakdown_title),
                         style = MaterialTheme.typography.titleMedium,
                     )
                     if (state.expenseByCategory.isEmpty()) {
                         Text(
-                            text = "No expenses this month yet.",
+                            text = stringResource(R.string.stats_breakdown_empty),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     } else {
@@ -91,9 +93,9 @@ private fun SummaryCards(state: StatsHomeUiState) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        SummaryCard("Income", state.incomeTotal, state.displayCurrency, Modifier.weight(1f))
-        SummaryCard("Expense", state.expenseTotal, state.displayCurrency, Modifier.weight(1f))
-        SummaryCard("Net", state.net, state.displayCurrency, Modifier.weight(1f))
+        SummaryCard(stringResource(R.string.stats_income), state.incomeTotal, state.displayCurrency, Modifier.weight(1f))
+        SummaryCard(stringResource(R.string.stats_expense), state.expenseTotal, state.displayCurrency, Modifier.weight(1f))
+        SummaryCard(stringResource(R.string.stats_net), state.net, state.displayCurrency, Modifier.weight(1f))
     }
 }
 

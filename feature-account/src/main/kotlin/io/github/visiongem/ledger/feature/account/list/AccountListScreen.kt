@@ -16,11 +16,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.visiongem.ledger.core.ui.component.ViaEmptyPage
 import io.github.visiongem.ledger.core.ui.component.ViaLoadingPage
 import io.github.visiongem.ledger.core.ui.component.ViaTopBar
+import io.github.visiongem.ledger.feature.account.R
 
 @Composable
 fun AccountListScreen(
@@ -31,10 +33,10 @@ fun AccountListScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = { ViaTopBar(title = "Accounts") },
+        topBar = { ViaTopBar(title = stringResource(R.string.account_list_title)) },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddClick) {
-                Icon(Icons.Default.Add, contentDescription = "Add account")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.account_list_add_cd))
             }
         },
     ) { paddingValues ->
@@ -46,7 +48,7 @@ fun AccountListScreen(
             when {
                 state.loading -> ViaLoadingPage()
                 state.accounts.isEmpty() -> ViaEmptyPage(
-                    message = "No accounts yet. Tap + to add your first account.",
+                    message = stringResource(R.string.account_list_empty),
                 )
                 else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(state.accounts, key = { it.id }) { account ->
