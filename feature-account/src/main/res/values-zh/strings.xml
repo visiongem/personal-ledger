@@ -15,4 +15,7 @@
     <string name="account_err_currency_invalid">币种必须是 3 位 ISO 4217 字母</string>
     <string name="account_err_balance_invalid">初始余额不是有效数字</string>
     <string name="account_err_save_failed">保存失败</string>
+
+    <string name="account_archive_undo_message">已归档</string>
+    <string name="account_archive_undo_action">撤销</string>
 </resources>

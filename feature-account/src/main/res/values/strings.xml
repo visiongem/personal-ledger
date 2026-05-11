@@ -15,4 +15,7 @@
     <string name="account_err_currency_invalid">Currency must be 3 letters (ISO 4217)</string>
     <string name="account_err_balance_invalid">Opening balance is not a valid number</string>
     <string name="account_err_save_failed">Save failed</string>
+
+    <string name="account_archive_undo_message">Account archived</string>
+    <string name="account_archive_undo_action">Undo</string>
 </resources>

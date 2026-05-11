@@ -1,6 +1,7 @@
 package io.github.visiongem.ledger.feature.account.list
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,9 +13,14 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,7 +30,9 @@ import io.github.visiongem.ledger.core.ui.component.ViaLoadingPage
 import io.github.visiongem.ledger.core.ui.component.ViaTopBar
 import io.github.visiongem.ledger.core.utils.CurrencyFormatter
 import io.github.visiongem.ledger.feature.account.R
+import kotlinx.coroutines.flow.collectLatest
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AccountListScreen(
     onAccountClick: (Long) -> Unit,
@@ -32,9 +40,25 @@ fun AccountListScreen(
     viewModel: AccountListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val archivedMessage = stringResource(R.string.account_archive_undo_message)
+    val undoLabel = stringResource(R.string.account_archive_undo_action)
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel) {
+        viewModel.archiveEvents.collectLatest { archived ->
+            val result = snackbarHostState.showSnackbar(
+                message = archivedMessage,
+                actionLabel = undoLabel,
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                viewModel.undoArchive(archived)
+            }
+        }
+    }
 
     Scaffold(
         topBar = { ViaTopBar(title = stringResource(R.string.account_list_title)) },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddClick) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.account_list_add_cd))
@@ -58,7 +82,10 @@ fun AccountListScreen(
                             supportingContent = {
                                 Text(CurrencyFormatter.format(account.openingBalance, account.currencyCode))
                             },
-                            modifier = Modifier.clickable { onAccountClick(account.id) },
+                            modifier = Modifier.combinedClickable(
+                                onClick = { onAccountClick(account.id) },
+                                onLongClick = { viewModel.onLongPress(account) },
+                            ),
                         )
                     }
                 }
