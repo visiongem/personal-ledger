@@ -19,7 +19,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -78,64 +81,63 @@ private val topLevelDestinations = listOf(
     TopLevelDestination(SettingsHomeRoute, "Settings", Icons.Default.Settings),
 )
 
-private fun isTopLevelRoute(route: Any?): Boolean =
-    topLevelDestinations.any { it.route == route }
-
 @Composable
 private fun LedgerApp() {
-    val backStack = remember { mutableStateListOf<Any>(RecordListRoute) }
-    val current = backStack.lastOrNull()
-    val showBottomBar = isTopLevelRoute(current)
+    // Per-tab back stacks so a sub-page (e.g. RecordEdit) stays alive when the user
+    // switches tabs and returns. Stacks themselves use `remember` (not Saveable) —
+    // config changes will drop sub-pages but the running session keeps them.
+    val recordsStack = remember { mutableStateListOf<Any>(RecordListRoute) }
+    val accountsStack = remember { mutableStateListOf<Any>(AccountListRoute) }
+    val statsStack = remember { mutableStateListOf<Any>(StatsHomeRoute) }
+    val settingsStack = remember { mutableStateListOf<Any>(SettingsHomeRoute) }
+
+    // Saveable so the chosen tab survives rotation.
+    var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
+    val tabStacks = listOf(recordsStack, accountsStack, statsStack, settingsStack)
+    val currentStack = tabStacks[selectedTabIndex]
 
     Scaffold(
         bottomBar = {
-            if (showBottomBar) {
-                NavigationBar {
-                    topLevelDestinations.forEach { dest ->
-                        NavigationBarItem(
-                            selected = current == dest.route,
-                            onClick = {
-                                if (current != dest.route) {
-                                    backStack.clear()
-                                    backStack.add(dest.route)
-                                }
-                            },
-                            icon = { Icon(dest.icon, contentDescription = dest.label) },
-                            label = { Text(dest.label) },
-                        )
-                    }
+            NavigationBar {
+                topLevelDestinations.forEachIndexed { index, dest ->
+                    NavigationBarItem(
+                        selected = index == selectedTabIndex,
+                        onClick = { selectedTabIndex = index },
+                        icon = { Icon(dest.icon, contentDescription = dest.label) },
+                        label = { Text(dest.label) },
+                    )
                 }
             }
         },
     ) { paddingValues ->
         NavDisplay(
-            backStack = backStack,
+            backStack = currentStack,
             modifier = Modifier.padding(paddingValues),
-            onBack = { backStack.removeLastOrNull() },
+            onBack = { currentStack.removeLastOrNull() },
             entryProvider = { key ->
                 when (key) {
                     is RecordListRoute -> NavEntry(key) {
                         RecordListScreen(
-                            onRecordClick = { id -> backStack.add(RecordEditRoute(id)) },
-                            onAddClick = { backStack.add(RecordEditRoute(null)) },
+                            onRecordClick = { id -> recordsStack.add(RecordEditRoute(id)) },
+                            onAddClick = { recordsStack.add(RecordEditRoute(null)) },
                         )
                     }
                     is RecordEditRoute -> NavEntry(key) {
                         RecordEditScreen(
                             recordId = key.recordId,
-                            onDone = { backStack.removeLastOrNull() },
+                            onDone = { recordsStack.removeLastOrNull() },
                         )
                     }
                     is AccountListRoute -> NavEntry(key) {
                         AccountListScreen(
-                            onAccountClick = { id -> backStack.add(AccountEditRoute(id)) },
-                            onAddClick = { backStack.add(AccountEditRoute(null)) },
+                            onAccountClick = { id -> accountsStack.add(AccountEditRoute(id)) },
+                            onAddClick = { accountsStack.add(AccountEditRoute(null)) },
                         )
                     }
                     is AccountEditRoute -> NavEntry(key) {
                         AccountEditScreen(
                             accountId = key.accountId,
-                            onDone = { backStack.removeLastOrNull() },
+                            onDone = { accountsStack.removeLastOrNull() },
                         )
                     }
                     is StatsHomeRoute -> NavEntry(key) { StatsHomeScreen() }
