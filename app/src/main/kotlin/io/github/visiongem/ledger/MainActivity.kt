@@ -21,9 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.annotation.StringRes
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -89,10 +90,25 @@ private fun LedgerApp() {
     // Per-tab back stacks so a sub-page (e.g. RecordEdit) stays alive when the user
     // switches tabs and returns. Stacks themselves use `remember` (not Saveable) —
     // config changes will drop sub-pages but the running session keeps them.
-    val recordsStack = remember { mutableStateListOf<Any>(RecordListRoute) }
-    val accountsStack = remember { mutableStateListOf<Any>(AccountListRoute) }
-    val statsStack = remember { mutableStateListOf<Any>(StatsHomeRoute) }
-    val settingsStack = remember { mutableStateListOf<Any>(SettingsHomeRoute) }
+    // listSaver lets each tab's back stack survive configuration changes / process death,
+    // restoring sub-pages (e.g. AccountEdit, RecordEdit) instead of dropping the user back
+    // at the tab root. Each route data class is @Parcelize so the saver can serialize them.
+    val backStackSaver = listSaver<androidx.compose.runtime.snapshots.SnapshotStateList<Any>, Any>(
+        save = { it.toList() },
+        restore = { it.toMutableStateList() },
+    )
+    val recordsStack = rememberSaveable(saver = backStackSaver) {
+        mutableStateListOf<Any>(RecordListRoute)
+    }
+    val accountsStack = rememberSaveable(saver = backStackSaver) {
+        mutableStateListOf<Any>(AccountListRoute)
+    }
+    val statsStack = rememberSaveable(saver = backStackSaver) {
+        mutableStateListOf<Any>(StatsHomeRoute)
+    }
+    val settingsStack = rememberSaveable(saver = backStackSaver) {
+        mutableStateListOf<Any>(SettingsHomeRoute)
+    }
 
     // Saveable so the chosen tab survives rotation.
     var selectedTabIndex by rememberSaveable { mutableStateOf(0) }

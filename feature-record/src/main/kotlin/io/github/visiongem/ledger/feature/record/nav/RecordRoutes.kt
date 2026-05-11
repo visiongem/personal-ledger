@@ -1,5 +1,10 @@
 package io.github.visiongem.ledger.feature.record.nav
 
-data object RecordListRoute
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-data class RecordEditRoute(val recordId: Long?)
+@Parcelize
+data object RecordListRoute : Parcelable
+
+@Parcelize
+data class RecordEditRoute(val recordId: Long?) : Parcelable

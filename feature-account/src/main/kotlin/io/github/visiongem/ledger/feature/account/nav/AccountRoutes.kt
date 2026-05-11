@@ -1,5 +1,10 @@
 package io.github.visiongem.ledger.feature.account.nav
 
-data object AccountListRoute
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-data class AccountEditRoute(val accountId: Long?)
+@Parcelize
+data object AccountListRoute : Parcelable
+
+@Parcelize
+data class AccountEditRoute(val accountId: Long?) : Parcelable
