@@ -22,9 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.visiongem.ledger.core.ui.component.BarEntry
+import io.github.visiongem.ledger.core.ui.component.PieSlice
 import io.github.visiongem.ledger.core.ui.component.ViaHorizontalBarChart
 import io.github.visiongem.ledger.core.ui.component.ViaLoadingPage
+import io.github.visiongem.ledger.core.ui.component.ViaPieChart
 import io.github.visiongem.ledger.core.ui.component.ViaTopBar
+import io.github.visiongem.ledger.core.ui.component.rememberPiePalette
 import io.github.visiongem.ledger.feature.stats.R
 import java.math.BigDecimal
 
@@ -71,6 +74,16 @@ fun StatsHomeScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     } else {
+                        val palette = rememberPiePalette()
+                        ViaPieChart(
+                            slices = state.expenseByCategory.mapIndexed { index, entry ->
+                                PieSlice(
+                                    label = entry.categoryName,
+                                    value = entry.total,
+                                    color = palette[index % palette.size],
+                                )
+                            },
+                        )
                         ViaHorizontalBarChart(
                             entries = state.expenseByCategory.map { entry ->
                                 BarEntry(
