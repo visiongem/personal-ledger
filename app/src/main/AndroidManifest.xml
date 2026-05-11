@@ -26,11 +26,12 @@
 
         <!-- Disable WorkManager's default eager initializer so our Configuration.Provider
              (LedgerApplication) is the single source of WorkManager config. Required when
-             using a custom WorkerFactory. -->
+             using a custom WorkerFactory. The androidx.startup library declares this
+             provider itself (with android:exported="false"); we only merge in to strip
+             the WorkManagerInitializer meta-data, no attribute overrides. -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            android:exported="false"
             tools:node="merge">
             <meta-data
                 android:name="androidx.work.WorkManagerInitializer"

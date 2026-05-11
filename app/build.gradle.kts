@@ -32,6 +32,10 @@ dependencies {
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.hilt.work)
     ksp(libs.androidx.hilt.compiler)
+    // Explicit dep so AS Lint resolves androidx.startup.InitializationProvider in the
+    // AndroidManifest. WorkManager brings it in transitively, but lint doesn't always
+    // follow transitives — without this, the provider declaration shows red in the IDE.
+    implementation(libs.androidx.startup.runtime)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
