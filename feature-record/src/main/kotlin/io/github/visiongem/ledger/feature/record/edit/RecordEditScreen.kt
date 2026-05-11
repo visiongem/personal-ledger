@@ -65,16 +65,48 @@ fun RecordEditScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             TypeSegmentedButtons(state.type, viewModel::onTypeChange)
-            AccountDropdown(state.accountOptions, state.accountId, viewModel::onAccountChange)
-            CategoryDropdown(state.categoryOptions, state.categoryId, viewModel::onCategoryChange)
+            AccountDropdown(
+                label = if (state.type == RecordType.TRANSFER) "From account" else "Account",
+                accounts = state.accountOptions,
+                selectedId = state.accountId,
+                onSelect = viewModel::onAccountChange,
+            )
+            if (state.type == RecordType.TRANSFER) {
+                AccountDropdown(
+                    label = "To account",
+                    accounts = state.accountOptions.filter { it.id != state.accountId },
+                    selectedId = state.targetAccountId,
+                    onSelect = viewModel::onTargetAccountChange,
+                )
+            } else {
+                CategoryDropdown(state.categoryOptions, state.categoryId, viewModel::onCategoryChange)
+            }
             OutlinedTextField(
                 value = state.amount,
                 onValueChange = viewModel::onAmountChange,
-                label = { Text("Amount") },
+                label = {
+                    Text(
+                        if (state.type == RecordType.TRANSFER) "Amount (source)" else "Amount"
+                    )
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
+            if (state.crossCurrencyTransfer) {
+                val targetCurrency = state.accountOptions
+                    .firstOrNull { it.id == state.targetAccountId }
+                    ?.currencyCode
+                    .orEmpty()
+                OutlinedTextField(
+                    value = state.transferAmount,
+                    onValueChange = viewModel::onTransferAmountChange,
+                    label = { Text("Amount (destination, $targetCurrency)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                )
+            }
             OutlinedTextField(
                 value = state.dateInput,
                 onValueChange = viewModel::onDateChange,
@@ -108,7 +140,7 @@ private fun TypeSegmentedButtons(
     selected: RecordType,
     onChange: (RecordType) -> Unit,
 ) {
-    val visibleTypes = listOf(RecordType.EXPENSE, RecordType.INCOME)
+    val visibleTypes = listOf(RecordType.EXPENSE, RecordType.INCOME, RecordType.TRANSFER)
     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
         visibleTypes.forEachIndexed { index, type ->
             SegmentedButton(
@@ -116,7 +148,13 @@ private fun TypeSegmentedButtons(
                 onClick = { onChange(type) },
                 shape = SegmentedButtonDefaults.itemShape(index, visibleTypes.size),
             ) {
-                Text(if (type == RecordType.EXPENSE) "Expense" else "Income")
+                Text(
+                    when (type) {
+                        RecordType.EXPENSE -> "Expense"
+                        RecordType.INCOME -> "Income"
+                        RecordType.TRANSFER -> "Transfer"
+                    }
+                )
             }
         }
     }
@@ -128,6 +166,7 @@ private fun AccountDropdown(
     accounts: List<Account>,
     selectedId: Long?,
     onSelect: (Long) -> Unit,
+    label: String = "Account",
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selected = accounts.firstOrNull { it.id == selectedId }
@@ -139,7 +178,7 @@ private fun AccountDropdown(
             value = selected?.let { "${it.name} (${it.currencyCode})" } ?: "",
             onValueChange = {},
             readOnly = true,
-            label = { Text("Account") },
+            label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
             modifier = Modifier
                 .menuAnchor(androidx.compose.material3.MenuAnchorType.PrimaryNotEditable)
