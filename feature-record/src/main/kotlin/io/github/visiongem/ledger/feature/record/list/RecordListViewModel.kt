@@ -3,19 +3,24 @@ package io.github.visiongem.ledger.feature.record.list
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.visiongem.ledger.core.base.BaseViewModel
+import io.github.visiongem.ledger.core.data.domain.Record
 import io.github.visiongem.ledger.core.data.repo.AccountRepository
 import io.github.visiongem.ledger.core.data.repo.CategoryRepository
 import io.github.visiongem.ledger.core.data.repo.RecordRepository
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class RecordListViewModel @Inject constructor(
-    recordRepository: RecordRepository,
+    private val recordRepository: RecordRepository,
     accountRepository: AccountRepository,
     categoryRepository: CategoryRepository,
 ) : BaseViewModel() {
@@ -46,6 +51,22 @@ class RecordListViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(STATE_TIMEOUT_MILLIS),
         initialValue = RecordListUiState(),
     )
+
+    private val _deletionEvents = MutableSharedFlow<Record>(extraBufferCapacity = 1)
+    val deletionEvents: SharedFlow<Record> = _deletionEvents.asSharedFlow()
+
+    fun onLongPress(record: Record) {
+        viewModelScope.launch {
+            recordRepository.deleteById(record.id)
+            _deletionEvents.tryEmit(record)
+        }
+    }
+
+    fun undoDelete(record: Record) {
+        viewModelScope.launch {
+            recordRepository.upsert(record)
+        }
+    }
 
     private companion object {
         // Wide bounds bypass the BETWEEN clause; SQLite Long-stored epoch days handle this fine.

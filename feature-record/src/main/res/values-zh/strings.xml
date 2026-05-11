@@ -31,4 +31,7 @@
     <string name="record_err_dest_amount_positive">目标金额必须为正数</string>
     <string name="record_err_date_invalid">日期格式必须为 yyyy-MM-dd</string>
     <string name="record_err_save_failed">保存失败</string>
+
+    <string name="record_delete_undo_message">已删除</string>
+    <string name="record_delete_undo_action">撤销</string>
 </resources>

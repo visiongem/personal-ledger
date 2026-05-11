@@ -31,4 +31,7 @@
     <string name="record_err_dest_amount_positive">Destination amount must be a positive number</string>
     <string name="record_err_date_invalid">Date must be ISO yyyy-MM-dd</string>
     <string name="record_err_save_failed">Save failed</string>
+
+    <string name="record_delete_undo_message">Record deleted</string>
+    <string name="record_delete_undo_action">Undo</string>
 </resources>
