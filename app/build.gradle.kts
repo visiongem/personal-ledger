@@ -12,6 +12,39 @@ android {
         versionName = "0.1.0"
         testInstrumentationRunner = "io.github.visiongem.ledger.HiltTestRunner"
     }
+
+    // Release signing reads credentials from ~/.gradle/gradle.properties (or any
+    // project-local override) so the keystore path and passwords never enter the
+    // repository. Missing properties → release builds without a signing config
+    // (AGP produces an unsigned APK, useful for inspection but not installable).
+    val releaseStoreFilePath = project.findProperty("LEDGER_RELEASE_STORE_FILE") as String?
+    val releaseStoreFile = releaseStoreFilePath?.let { path ->
+        rootProject.file(path).takeIf { it.exists() }
+    }
+
+    signingConfigs {
+        create("release") {
+            if (releaseStoreFile != null) {
+                storeFile = releaseStoreFile
+                storePassword = project.findProperty("LEDGER_RELEASE_STORE_PASSWORD") as String?
+                keyAlias = project.findProperty("LEDGER_RELEASE_KEY_ALIAS") as String?
+                keyPassword = project.findProperty("LEDGER_RELEASE_KEY_PASSWORD") as String?
+            }
+        }
+    }
+
+    buildTypes {
+        getByName("release") {
+            if (releaseStoreFile != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+            // Personal app: skip R8/resource shrinking so we don't need to maintain
+            // ProGuard rules for Hilt/Moshi/Retrofit/Room reflection. Trades APK
+            // size for build reliability.
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+    }
 }
 
 dependencies {
