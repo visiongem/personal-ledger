@@ -31,4 +31,23 @@
 
     <string name="settings_about_title">About</string>
     <string name="settings_version_fmt">Personal Ledger · v%1$s</string>
+
+    <string name="settings_categories_title">Categories</string>
+    <string name="settings_categories_manage">Manage categories</string>
+
+    <string name="category_list_title">Categories</string>
+    <string name="category_list_add_cd">Add category</string>
+    <string name="category_section_expense">Expense</string>
+    <string name="category_section_income">Income</string>
+    <string name="category_delete_undo_message">Category deleted</string>
+    <string name="category_delete_undo_action">Undo</string>
+
+    <string name="category_edit_title_add">Add category</string>
+    <string name="category_edit_title_edit">Edit category</string>
+    <string name="category_edit_name_label">Name</string>
+    <string name="category_edit_save">Save</string>
+    <string name="category_type_expense">Expense</string>
+    <string name="category_type_income">Income</string>
+    <string name="category_err_name_required">Name is required</string>
+    <string name="category_err_save_failed">Save failed</string>
 </resources>

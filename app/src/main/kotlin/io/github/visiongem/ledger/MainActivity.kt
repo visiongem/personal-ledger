@@ -45,6 +45,10 @@ import io.github.visiongem.ledger.feature.record.list.RecordListScreen
 import io.github.visiongem.ledger.feature.record.nav.RecordEditRoute
 import io.github.visiongem.ledger.feature.record.nav.RecordListRoute
 import io.github.visiongem.ledger.feature.settings.SettingsHomeScreen
+import io.github.visiongem.ledger.feature.settings.category.CategoryEditScreen
+import io.github.visiongem.ledger.feature.settings.category.CategoryListScreen
+import io.github.visiongem.ledger.feature.settings.nav.CategoryEditRoute
+import io.github.visiongem.ledger.feature.settings.nav.CategoryListRoute
 import io.github.visiongem.ledger.feature.settings.nav.SettingsHomeRoute
 import io.github.visiongem.ledger.feature.stats.StatsHomeScreen
 import io.github.visiongem.ledger.feature.stats.nav.StatsHomeRoute
@@ -165,7 +169,24 @@ private fun LedgerApp() {
                         )
                     }
                     is StatsHomeRoute -> NavEntry(key) { StatsHomeScreen() }
-                    is SettingsHomeRoute -> NavEntry(key) { SettingsHomeScreen() }
+                    is SettingsHomeRoute -> NavEntry(key) {
+                        SettingsHomeScreen(
+                            onManageCategoriesClick = { settingsStack.add(CategoryListRoute) },
+                        )
+                    }
+                    is CategoryListRoute -> NavEntry(key) {
+                        CategoryListScreen(
+                            onCategoryClick = { id -> settingsStack.add(CategoryEditRoute(id)) },
+                            onAddClick = { settingsStack.add(CategoryEditRoute(null)) },
+                            onBack = { settingsStack.removeLastOrNull() },
+                        )
+                    }
+                    is CategoryEditRoute -> NavEntry(key) {
+                        CategoryEditScreen(
+                            categoryId = key.categoryId,
+                            onDone = { settingsStack.removeLastOrNull() },
+                        )
+                    }
                     else -> error("Unknown route: $key")
                 }
             },

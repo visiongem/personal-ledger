@@ -5,3 +5,9 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data object SettingsHomeRoute : Parcelable
+
+@Parcelize
+data object CategoryListRoute : Parcelable
+
+@Parcelize
+data class CategoryEditRoute(val categoryId: Long?) : Parcelable

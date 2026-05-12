@@ -39,6 +39,7 @@ import java.util.Locale
 
 @Composable
 fun SettingsHomeScreen(
+    onManageCategoriesClick: () -> Unit = {},
     viewModel: SettingsHomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -58,6 +59,8 @@ fun SettingsHomeScreen(
             HorizontalDivider()
             CurrencySection(state.defaultCurrency, viewModel::onDefaultCurrencyChange)
             HorizontalDivider()
+            CategoriesSection(onManageCategoriesClick)
+            HorizontalDivider()
             RatesSection(
                 refreshing = state.refreshingRates,
                 message = state.ratesMessage,
@@ -74,6 +77,18 @@ fun SettingsHomeScreen(
             HorizontalDivider()
             AboutSection(state.versionName)
         }
+    }
+}
+
+@Composable
+private fun CategoriesSection(onManageClick: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(text = stringResource(R.string.settings_categories_title), style = MaterialTheme.typography.titleMedium)
+        io.github.visiongem.ledger.core.ui.component.ViaOutlineButton(
+            text = stringResource(R.string.settings_categories_manage),
+            onClick = onManageClick,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 

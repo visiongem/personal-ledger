@@ -31,4 +31,23 @@
 
     <string name="settings_about_title">关于</string>
     <string name="settings_version_fmt">Personal Ledger · v%1$s</string>
+
+    <string name="settings_categories_title">分类</string>
+    <string name="settings_categories_manage">管理分类</string>
+
+    <string name="category_list_title">分类</string>
+    <string name="category_list_add_cd">新增分类</string>
+    <string name="category_section_expense">支出</string>
+    <string name="category_section_income">收入</string>
+    <string name="category_delete_undo_message">已删除</string>
+    <string name="category_delete_undo_action">撤销</string>
+
+    <string name="category_edit_title_add">新增分类</string>
+    <string name="category_edit_title_edit">编辑分类</string>
+    <string name="category_edit_name_label">名称</string>
+    <string name="category_edit_save">保存</string>
+    <string name="category_type_expense">支出</string>
+    <string name="category_type_income">收入</string>
+    <string name="category_err_name_required">请输入名称</string>
+    <string name="category_err_save_failed">保存失败</string>
 </resources>
