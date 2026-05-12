@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">私人账本</string>
+    <string name="app_name">Personal Ledger</string>
 
     <!-- Bottom navigation tabs -->
     <string name="tab_records">流水</string>
