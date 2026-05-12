@@ -78,6 +78,7 @@ dependencies {
     implementation(project(":feature-settings"))
 
     implementation(libs.android.core.ktx)
+    implementation(libs.android.core.splashscreen)
     implementation(libs.android.activity.compose)
     implementation(libs.android.lifecycle.runtime.ktx)
     implementation(libs.android.lifecycle.runtime.compose)

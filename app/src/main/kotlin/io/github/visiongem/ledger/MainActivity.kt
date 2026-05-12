@@ -54,10 +54,15 @@ import io.github.visiongem.ledger.feature.settings.nav.CategoryListRoute
 import io.github.visiongem.ledger.feature.settings.nav.SettingsHomeRoute
 import io.github.visiongem.ledger.feature.stats.StatsHomeScreen
 import io.github.visiongem.ledger.feature.stats.nav.StatsHomeRoute
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // installSplashScreen() must run BEFORE super.onCreate() so AndroidX can
+        // swap the activity theme from Theme.Ledger.Starting to Theme.Ledger
+        // (declared as postSplashScreenTheme) before the content view inflates.
+        installSplashScreen()
         // Must run BEFORE super.onCreate() to take effect before Window attach. See androidx.activity docs.
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
