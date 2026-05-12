@@ -175,6 +175,8 @@ private fun LedgerApp() {
                         SettingsHomeScreen(
                             onManageCategoriesClick = { settingsStack.add(CategoryListRoute) },
                             onManageBudgetsClick = { settingsStack.add(BudgetsRoute) },
+                            gitSha = BuildConfig.GIT_SHA,
+                            buildTime = BuildConfig.BUILD_TIME,
                         )
                     }
                     is BudgetsRoute -> NavEntry(key) {

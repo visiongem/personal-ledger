@@ -1,8 +1,24 @@
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+
 plugins {
     alias(libs.plugins.ledger.android.application)
     alias(libs.plugins.ledger.android.compose)
     alias(libs.plugins.ledger.android.hilt)
 }
+
+// Read the current short git sha at configuration time. providers.exec keeps
+// the configuration cache happy by treating the command as a tracked input;
+// failures fall back to "unknown" so source-export builds still compile.
+val gitShortSha: String = runCatching {
+    providers.exec {
+        commandLine("git", "rev-parse", "--short", "HEAD")
+        workingDir = rootProject.rootDir
+        isIgnoreExitValue = true
+    }.standardOutput.asText.get().trim()
+}.getOrNull()?.takeIf { it.isNotEmpty() } ?: "unknown"
+
+val buildTimestamp: String = DateTimeFormatter.ISO_INSTANT.format(Instant.now())
 
 android {
     namespace = "io.github.visiongem.ledger"
@@ -11,6 +27,12 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         testInstrumentationRunner = "io.github.visiongem.ledger.HiltTestRunner"
+        buildConfigField("String", "GIT_SHA", "\"$gitShortSha\"")
+        buildConfigField("String", "BUILD_TIME", "\"$buildTimestamp\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     // Release signing reads credentials from ~/.gradle/gradle.properties (or any

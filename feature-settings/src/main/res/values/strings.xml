@@ -31,6 +31,7 @@
 
     <string name="settings_about_title">About</string>
     <string name="settings_version_fmt">Personal Ledger · v%1$s</string>
+    <string name="settings_build_fmt">Build %1$s · %2$s</string>
 
     <string name="settings_categories_title">Categories</string>
     <string name="settings_categories_manage">Manage categories</string>

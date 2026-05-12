@@ -41,6 +41,8 @@ import java.util.Locale
 fun SettingsHomeScreen(
     onManageCategoriesClick: () -> Unit = {},
     onManageBudgetsClick: () -> Unit = {},
+    gitSha: String = "",
+    buildTime: String = "",
     viewModel: SettingsHomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -78,7 +80,7 @@ fun SettingsHomeScreen(
                 onImport = viewModel::importBackupFromUri,
             )
             HorizontalDivider()
-            AboutSection(state.versionName)
+            AboutSection(state.versionName, gitSha, buildTime)
         }
     }
 }
@@ -254,12 +256,19 @@ private fun CurrencySection(current: String, onChange: (String) -> Unit) {
 private const val ISO_LENGTH = 3
 
 @Composable
-private fun AboutSection(version: String) {
+private fun AboutSection(version: String, gitSha: String, buildTime: String) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(text = stringResource(R.string.settings_about_title), style = MaterialTheme.typography.titleMedium)
         Text(
             text = stringResource(R.string.settings_version_fmt, version),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        if (gitSha.isNotBlank() || buildTime.isNotBlank()) {
+            Text(
+                text = stringResource(R.string.settings_build_fmt, gitSha, buildTime),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }

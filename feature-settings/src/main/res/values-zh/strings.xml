@@ -31,6 +31,7 @@
 
     <string name="settings_about_title">关于</string>
     <string name="settings_version_fmt">Personal Ledger · v%1$s</string>
+    <string name="settings_build_fmt">构建 %1$s · %2$s</string>
 
     <string name="settings_categories_title">分类</string>
     <string name="settings_categories_manage">管理分类</string>
