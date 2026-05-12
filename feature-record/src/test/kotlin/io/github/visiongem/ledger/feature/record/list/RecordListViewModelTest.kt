@@ -130,6 +130,64 @@ class RecordListViewModelTest {
     }
 
     @Test
+    fun typeFilterKeepsOnlyMatchingRecords() = runTest {
+        val expense = Record(
+            id = 1L, accountId = 1L, categoryId = 10L, type = RecordType.EXPENSE,
+            amount = BigDecimal("10"), occurredOn = LocalDate.of(2026, 5, 1), note = null,
+        )
+        val income = Record(
+            id = 2L, accountId = 1L, categoryId = null, type = RecordType.INCOME,
+            amount = BigDecimal("100"), occurredOn = LocalDate.of(2026, 5, 2), note = null,
+        )
+        every { recordRepo.observeInRange(any(), any()) } returns flowOf(listOf(expense, income))
+        every { accountRepo.observeAll() } returns flowOf(listOf(cashAccount))
+        every { categoryRepo.observeAll() } returns flowOf(listOf(foodCategory))
+
+        val vm = RecordListViewModel(recordRepo, accountRepo, categoryRepo)
+
+        vm.state.test {
+            // initial: no filter — both rows present
+            assertThat(awaitItem().rows).hasSize(2)
+
+            vm.onTypeFilterChange(RecordType.EXPENSE)
+            val filtered = awaitItem()
+            assertThat(filtered.rows).hasSize(1)
+            assertThat(filtered.rows[0].record.type).isEqualTo(RecordType.EXPENSE)
+            assertThat(filtered.selectedType).isEqualTo(RecordType.EXPENSE)
+
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun accountFilterKeepsOnlyMatchingAccount() = runTest {
+        val savings = cashAccount.copy(id = 2L, name = "Savings")
+        val onCash = Record(
+            id = 1L, accountId = 1L, categoryId = null, type = RecordType.EXPENSE,
+            amount = BigDecimal("5"), occurredOn = LocalDate.of(2026, 5, 1), note = null,
+        )
+        val onSavings = Record(
+            id = 2L, accountId = 2L, categoryId = null, type = RecordType.EXPENSE,
+            amount = BigDecimal("9"), occurredOn = LocalDate.of(2026, 5, 2), note = null,
+        )
+        every { recordRepo.observeInRange(any(), any()) } returns flowOf(listOf(onCash, onSavings))
+        every { accountRepo.observeAll() } returns flowOf(listOf(cashAccount, savings))
+        every { categoryRepo.observeAll() } returns flowOf(emptyList())
+
+        val vm = RecordListViewModel(recordRepo, accountRepo, categoryRepo)
+
+        vm.state.test {
+            assertThat(awaitItem().rows).hasSize(2)
+            vm.onAccountFilterChange(2L)
+            val filtered = awaitItem()
+            assertThat(filtered.rows).hasSize(1)
+            assertThat(filtered.rows[0].accountName).isEqualTo("Savings")
+            assertThat(filtered.selectedAccountId).isEqualTo(2L)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun transferRowResolvesBothSourceAndTargetAccountNames() = runTest {
         val savings = cashAccount.copy(id = 2L, name = "Savings")
         val transferRecord = Record(

@@ -4,8 +4,11 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import io.github.visiongem.ledger.core.data.domain.Account
 import io.github.visiongem.ledger.core.data.repo.AccountRepository
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import java.math.BigDecimal
 import java.time.Instant
 import kotlinx.coroutines.Dispatchers
@@ -76,5 +79,36 @@ class AccountListViewModelTest {
             assertThat(loaded.accounts).isEmpty()
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun onLongPressArchivesAndEmitsEvent() = runTest {
+        every { repo.observeActive() } returns flowOf(listOf(sampleAccount))
+        val upsertCaptured = slot<Account>()
+        coEvery { repo.upsert(capture(upsertCaptured)) } returns sampleAccount.id
+        val vm = AccountListViewModel(repo)
+
+        vm.archiveEvents.test {
+            vm.onLongPress(sampleAccount)
+            val emitted = awaitItem()
+            assertThat(emitted.id).isEqualTo(sampleAccount.id)
+            cancelAndIgnoreRemainingEvents()
+        }
+        coVerify { repo.upsert(any()) }
+        assertThat(upsertCaptured.captured.archived).isTrue()
+    }
+
+    @Test
+    fun undoArchiveUpsertsWithArchivedFalse() = runTest {
+        every { repo.observeActive() } returns flowOf(emptyList())
+        val upsertCaptured = slot<Account>()
+        coEvery { repo.upsert(capture(upsertCaptured)) } returns sampleAccount.id
+        val vm = AccountListViewModel(repo)
+
+        vm.undoArchive(sampleAccount.copy(archived = true))
+
+        coVerify { repo.upsert(any()) }
+        assertThat(upsertCaptured.captured.archived).isFalse()
+        assertThat(upsertCaptured.captured.id).isEqualTo(sampleAccount.id)
     }
 }
