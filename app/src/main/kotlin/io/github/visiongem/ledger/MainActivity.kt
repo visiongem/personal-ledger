@@ -45,8 +45,10 @@ import io.github.visiongem.ledger.feature.record.list.RecordListScreen
 import io.github.visiongem.ledger.feature.record.nav.RecordEditRoute
 import io.github.visiongem.ledger.feature.record.nav.RecordListRoute
 import io.github.visiongem.ledger.feature.settings.SettingsHomeScreen
+import io.github.visiongem.ledger.feature.settings.budgets.BudgetsScreen
 import io.github.visiongem.ledger.feature.settings.category.CategoryEditScreen
 import io.github.visiongem.ledger.feature.settings.category.CategoryListScreen
+import io.github.visiongem.ledger.feature.settings.nav.BudgetsRoute
 import io.github.visiongem.ledger.feature.settings.nav.CategoryEditRoute
 import io.github.visiongem.ledger.feature.settings.nav.CategoryListRoute
 import io.github.visiongem.ledger.feature.settings.nav.SettingsHomeRoute
@@ -172,7 +174,11 @@ private fun LedgerApp() {
                     is SettingsHomeRoute -> NavEntry(key) {
                         SettingsHomeScreen(
                             onManageCategoriesClick = { settingsStack.add(CategoryListRoute) },
+                            onManageBudgetsClick = { settingsStack.add(BudgetsRoute) },
                         )
+                    }
+                    is BudgetsRoute -> NavEntry(key) {
+                        BudgetsScreen(onBack = { settingsStack.removeLastOrNull() })
                     }
                     is CategoryListRoute -> NavEntry(key) {
                         CategoryListScreen(

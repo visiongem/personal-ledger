@@ -40,6 +40,7 @@ import java.util.Locale
 @Composable
 fun SettingsHomeScreen(
     onManageCategoriesClick: () -> Unit = {},
+    onManageBudgetsClick: () -> Unit = {},
     viewModel: SettingsHomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -60,6 +61,8 @@ fun SettingsHomeScreen(
             CurrencySection(state.defaultCurrency, viewModel::onDefaultCurrencyChange)
             HorizontalDivider()
             CategoriesSection(onManageCategoriesClick)
+            HorizontalDivider()
+            BudgetsSection(onManageBudgetsClick)
             HorizontalDivider()
             RatesSection(
                 refreshing = state.refreshingRates,
@@ -86,6 +89,18 @@ private fun CategoriesSection(onManageClick: () -> Unit) {
         Text(text = stringResource(R.string.settings_categories_title), style = MaterialTheme.typography.titleMedium)
         io.github.visiongem.ledger.core.ui.component.ViaOutlineButton(
             text = stringResource(R.string.settings_categories_manage),
+            onClick = onManageClick,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
+private fun BudgetsSection(onManageClick: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(text = stringResource(R.string.settings_budgets_title), style = MaterialTheme.typography.titleMedium)
+        io.github.visiongem.ledger.core.ui.component.ViaOutlineButton(
+            text = stringResource(R.string.settings_budgets_manage),
             onClick = onManageClick,
             modifier = Modifier.fillMaxWidth(),
         )

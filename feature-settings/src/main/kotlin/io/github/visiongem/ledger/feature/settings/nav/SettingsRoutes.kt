@@ -11,3 +11,6 @@ data object CategoryListRoute : Parcelable
 
 @Parcelize
 data class CategoryEditRoute(val categoryId: Long?) : Parcelable
+
+@Parcelize
+data object BudgetsRoute : Parcelable

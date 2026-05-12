@@ -35,6 +35,18 @@
     <string name="settings_categories_title">Categories</string>
     <string name="settings_categories_manage">Manage categories</string>
 
+    <string name="settings_budgets_title">Budgets</string>
+    <string name="settings_budgets_manage">Manage budgets</string>
+
+    <string name="budgets_title">Monthly budgets</string>
+    <string name="budgets_used_fmt">%1$s of %2$s</string>
+    <string name="budgets_no_limit">No limit</string>
+    <string name="budgets_set">Set</string>
+    <string name="budgets_edit">Edit</string>
+    <string name="budgets_save">Save</string>
+    <string name="budgets_clear">Clear</string>
+    <string name="budgets_limit_currency_fmt">Limit in %1$s</string>
+
     <string name="category_list_title">Categories</string>
     <string name="category_list_add_cd">Add category</string>
     <string name="category_section_expense">Expense</string>

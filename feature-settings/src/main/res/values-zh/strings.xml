@@ -35,6 +35,18 @@
     <string name="settings_categories_title">分类</string>
     <string name="settings_categories_manage">管理分类</string>
 
+    <string name="settings_budgets_title">预算</string>
+    <string name="settings_budgets_manage">管理预算</string>
+
+    <string name="budgets_title">月度预算</string>
+    <string name="budgets_used_fmt">%1$s / %2$s</string>
+    <string name="budgets_no_limit">未设置</string>
+    <string name="budgets_set">设置</string>
+    <string name="budgets_edit">编辑</string>
+    <string name="budgets_save">保存</string>
+    <string name="budgets_clear">清除</string>
+    <string name="budgets_limit_currency_fmt">限额（%1$s）</string>
+
     <string name="category_list_title">分类</string>
     <string name="category_list_add_cd">新增分类</string>
     <string name="category_section_expense">支出</string>
