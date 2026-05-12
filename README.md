@@ -47,6 +47,7 @@ build-logic           # Gradle convention plugins
 
 - 设计文档：`docs/specs/`
 - 实施计划：`docs/superpowers/plans/`
+- 隐私政策：[`docs/PRIVACY.md`](./docs/PRIVACY.md)（中英双语）
 
 ## 状态
 
