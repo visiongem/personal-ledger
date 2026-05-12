@@ -1,0 +1,7 @@
+- 项目概况、规则相关内容请在 @AGENTS.md 中维护和查看
+- 使用中文回答；commit / PR 标题用英文（type(scope): 描述）
+- 实现 UI 时，新增组件前 MUST 先在 `:core-ui` 全局搜确认是否已有 `Via*` 组件
+- 状态、函数、类 MUST 定义在最小必要作用域内；只在需要跨组件 / 跨生命周期共享时才上提
+- 实现过程中遇到不确定且无法参考既有实现的问题，MUST 询问用户意见，禁止自行决定
+- 金额相关计算 MUST 用 `BigDecimal`；渲染 MUST 走 `CurrencyFormatter`，禁止 `toPlainString()` 直出
+- 新增字符串 MUST 同步 `values/strings.xml`（英文）与 `values-zh/strings.xml`（简中），且追加在文件最底部
