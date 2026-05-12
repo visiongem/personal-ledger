@@ -15,38 +15,58 @@ import io.github.visiongem.ledger.core.data.repo.RecordRepository
 import java.math.BigDecimal
 import java.time.YearMonth
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class StatsHomeViewModel @Inject constructor(
-    recordRepository: RecordRepository,
-    categoryRepository: CategoryRepository,
-    accountRepository: AccountRepository,
+    private val recordRepository: RecordRepository,
+    private val categoryRepository: CategoryRepository,
+    private val accountRepository: AccountRepository,
     private val exchangeRateRepository: ExchangeRateRepository,
-    userPreferencesRepository: UserPreferencesRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) : BaseViewModel() {
 
-    private val month: YearMonth = YearMonth.now()
+    private val selectedMonth = MutableStateFlow(YearMonth.now())
 
-    val state: StateFlow<StatsHomeUiState> = combine(
-        recordRepository.observeInRange(month.atDay(1), month.atEndOfMonth()),
-        accountRepository.observeAll(),
-        categoryRepository.observeAll(),
-        userPreferencesRepository.flow,
-    ) { records, accounts, categories, prefs ->
-        val accountById = accounts.associateBy { it.id }
-        val defaultCurrency = prefs.defaultCurrency
-        val rates = buildRates(accounts, defaultCurrency)
-        compose(month, records, categories, accountById, defaultCurrency, rates)
+    val state: StateFlow<StatsHomeUiState> = selectedMonth.flatMapLatest { month ->
+        combine(
+            recordRepository.observeInRange(month.atDay(1), month.atEndOfMonth()),
+            accountRepository.observeAll(),
+            categoryRepository.observeAll(),
+            userPreferencesRepository.flow,
+        ) { records, accounts, categories, prefs ->
+            val accountById = accounts.associateBy { it.id }
+            val defaultCurrency = prefs.defaultCurrency
+            val rates = buildRates(accounts, defaultCurrency)
+            compose(month, records, categories, accountById, defaultCurrency, rates)
+        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(STATE_TIMEOUT_MILLIS),
-        initialValue = StatsHomeUiState(month = month),
+        initialValue = StatsHomeUiState(month = selectedMonth.value),
     )
+
+    fun goPrevMonth() {
+        selectedMonth.update { it.minusMonths(1) }
+    }
+
+    fun goNextMonth() {
+        // Cap forward navigation at the current real-world month — there's no
+        // data past today, future-month stats would always be empty + confusing.
+        selectedMonth.update { current ->
+            val now = YearMonth.now()
+            if (current >= now) current else current.plusMonths(1)
+        }
+    }
 
     private suspend fun buildRates(
         accounts: List<Account>,

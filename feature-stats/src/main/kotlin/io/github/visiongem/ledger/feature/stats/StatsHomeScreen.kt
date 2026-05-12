@@ -9,15 +9,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,6 +39,10 @@ import io.github.visiongem.ledger.core.ui.component.rememberPiePalette
 import io.github.visiongem.ledger.core.utils.CurrencyFormatter
 import io.github.visiongem.ledger.feature.stats.R
 import java.math.BigDecimal
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Locale
 
 @Composable
 fun StatsHomeScreen(
@@ -39,7 +51,7 @@ fun StatsHomeScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = { ViaTopBar(title = stringResource(R.string.stats_title_fmt, state.month.toString())) },
+        topBar = { ViaTopBar(title = stringResource(R.string.stats_title)) },
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -56,6 +68,11 @@ fun StatsHomeScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
+                    MonthSwitcher(
+                        month = state.month,
+                        onPrev = viewModel::goPrevMonth,
+                        onNext = viewModel::goNextMonth,
+                    )
                     if (state.unconvertedCount > 0) {
                         Text(
                             text = stringResource(R.string.stats_warn_unconverted_fmt, state.unconvertedCount),
@@ -99,6 +116,47 @@ fun StatsHomeScreen(
             }
         }
     }
+}
+
+@Composable
+private fun MonthSwitcher(
+    month: YearMonth,
+    onPrev: () -> Unit,
+    onNext: () -> Unit,
+) {
+    val locale = Locale.getDefault()
+    val label = remember(month, locale) { formatMonth(month, locale) }
+    val atCurrentMonth = month >= YearMonth.now()
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(onClick = onPrev) {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                contentDescription = stringResource(R.string.stats_prev_month_cd),
+            )
+        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.Center,
+        )
+        IconButton(onClick = onNext, enabled = !atCurrentMonth) {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = stringResource(R.string.stats_next_month_cd),
+            )
+        }
+    }
+}
+
+private fun formatMonth(month: YearMonth, locale: Locale): String {
+    // Pick a localized month-year pattern. FormatStyle.MEDIUM on a YearMonth
+    // isn't directly supported, so fall back to "MMM yyyy" / "yyyy年M月".
+    val pattern = if (locale.language == "zh") "yyyy年M月" else "MMM yyyy"
+    return DateTimeFormatter.ofPattern(pattern, locale).format(month)
 }
 
 @Composable

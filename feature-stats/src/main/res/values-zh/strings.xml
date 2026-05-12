@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="stats_title">统计</string>
     <string name="stats_title_fmt">统计 · %1$s</string>
+    <string name="stats_prev_month_cd">上个月</string>
+    <string name="stats_next_month_cd">下个月</string>
     <string name="stats_warn_unconverted_fmt">%1$d 条记录被跳过——缺少汇率。请到设置刷新。</string>
     <string name="stats_income">收入</string>
     <string name="stats_expense">支出</string>
