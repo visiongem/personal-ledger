@@ -34,4 +34,7 @@
 
     <string name="record_delete_undo_message">Record deleted</string>
     <string name="record_delete_undo_action">Undo</string>
+
+    <string name="record_filter_all">All</string>
+    <string name="record_filter_account">Account</string>
 </resources>

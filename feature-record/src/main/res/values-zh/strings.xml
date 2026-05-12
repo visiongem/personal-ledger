@@ -34,4 +34,7 @@
 
     <string name="record_delete_undo_message">已删除</string>
     <string name="record_delete_undo_action">撤销</string>
+
+    <string name="record_filter_all">全部</string>
+    <string name="record_filter_account">账户</string>
 </resources>
