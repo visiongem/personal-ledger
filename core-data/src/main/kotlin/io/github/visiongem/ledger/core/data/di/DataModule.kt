@@ -2,12 +2,15 @@ package io.github.visiongem.ledger.core.data.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.visiongem.ledger.core.data.local.AppDatabase
+import io.github.visiongem.ledger.core.data.local.DefaultCategories
 import io.github.visiongem.ledger.core.data.local.dao.AccountDao
 import io.github.visiongem.ledger.core.data.local.dao.BudgetDao
 import io.github.visiongem.ledger.core.data.local.dao.CategoryDao
@@ -27,7 +30,13 @@ object DataModule {
         context = context,
         klass = AppDatabase::class.java,
         name = AppDatabase.DATABASE_NAME,
-    ).build()
+    )
+        .addCallback(object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                DefaultCategories.seed(db)
+            }
+        })
+        .build()
 
     @Provides
     fun provideAccountDao(db: AppDatabase): AccountDao = db.accountDao()
